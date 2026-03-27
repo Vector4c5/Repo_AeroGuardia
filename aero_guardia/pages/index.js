@@ -2,7 +2,8 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div>
+    <div 
+    clasname = "Relative flex flex-col w-full h-auto bg-white">
       Hola Mundo
     </div>
   );
