@@ -7,6 +7,6 @@ export async function getServerSideProps() {
   };
 }
 
-export default function LandingRedirect() {
+export default function LandinfRedirect() {
   return null;
 }
