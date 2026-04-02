@@ -101,6 +101,15 @@ export default function Inicio() {
         </details>
       </header>
 
+      <Link
+        href="/control_acceso_personal"
+        className="mx-auto mb-8 flex w-full max-w-md items-center justify-center rounded-2xl border border-cyan-200 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 px-6 py-4 text-center text-lg font-semibold text-white shadow-xl shadow-sky-500/30 transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-sky-500/40 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/70"
+      >
+        <p className="tracking-wide">
+          Control de Acceso Personal
+        </p>
+      </Link>
+
       <main className="mx-auto w-full max-w-6xl space-y-8">
         {hangars.map((hangar) => (
           <section key={hangar.id} className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
