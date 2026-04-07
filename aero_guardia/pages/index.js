@@ -1,5 +1,7 @@
 import StarAnimation from "@/Components/common/StartAnimation";
+import LoginBtn  from "@/Components/common/Login_Btn";
 import Link from "next/link";
+
 
 export default function Home() {
   return (
@@ -33,15 +35,7 @@ export default function Home() {
           <p className="text-gray-600 text-center mt-2">
             Confía en nuestra experiencia y tecnología para proteger tus operaciones aéreas.
           </p>
-          <Link
-            href="/inicio"
-            className="group relative mt-4 overflow-hidden rounded-lg border-2 border-black bg-yellow-300 px-6 py-2 transition duration-500 ease-in-out hover:scale-105"
-          >
-            <span className="relative z-10 text-black transition duration-500 ease-in-out">
-              Iniciar Sesion
-            </span>
-            <span className="absolute top-0 left-0 h-full w-full bg-amber-400 transform -translate-x-full group-hover:translate-x-0 transition duration-500 ease-in-out"></span>
-          </Link>
+          <LoginBtn />
         </div>
 
 
