@@ -1,4 +1,9 @@
 import Link from "next/link";
+import { useSession, signIn, signOut } from "next-auth/react";
+import { Jersey_10 } from "next/font/google";
+import Header from "@/Components/common/Header";
+
+const jersey_10 = Jersey_10({ weight: '400', subsets: ['latin'] });
 
 const sectionTemplates = [
   {
@@ -68,42 +73,18 @@ const hangars = [
 
 export default function Inicio() {
   return (
-    <div className="min-h-screen bg-slate-100 px-5 py-6 text-slate-900 sm:px-8 md:px-12">
-      <header className="mx-auto mb-6 flex w-full max-w-6xl items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-        <h1 className="text-lg font-semibold sm:text-xl">AeroGuardia Classroom</h1>
+    <div className="w-full min-h-screen flex flex-col items-center justify-center bg-slate-100 px-5 py-6 text-slate-900 sm:px-8 md:px-12">
+      <div className="w-11/12 h-cuto flex flex-col items-center justify-center my-4">
+        <Header/>
 
-        <details className="relative">
-          <summary
-            aria-label="Abrir menu"
-            className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-lg border border-slate-300 bg-slate-50 transition hover:bg-slate-100"
-          >
-            <span className="flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-slate-700"></span>
-              <span className="h-1.5 w-1.5 rounded-full bg-slate-700"></span>
-              <span className="h-1.5 w-1.5 rounded-full bg-slate-700"></span>
-            </span>
-          </summary>
-
-          <div className="absolute right-0 top-12 z-20 w-44 rounded-lg border border-slate-200 bg-white p-2 shadow-lg">
-            <button type="button" className="w-full rounded-md px-3 py-2 text-left text-sm hover:bg-slate-100">
-              Perfil
-            </button>
-            <button type="button" className="w-full rounded-md px-3 py-2 text-left text-sm hover:bg-slate-100">
-              Ajustes
-            </button>
-            <button type="button" className="w-full rounded-md px-3 py-2 text-left text-sm hover:bg-slate-100">
-              Notificaciones
-            </button>
-            <button type="button" className="w-full rounded-md px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50">
-              Cerrar sesion
-            </button>
-          </div>
-        </details>
-      </header>
-
+      </div>
+      
       <Link
         href="/control_acceso_personal"
-        className="mx-auto mb-8 flex w-full max-w-md items-center justify-center rounded-2xl border border-cyan-200 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 px-6 py-4 text-center text-lg font-semibold text-white shadow-xl shadow-sky-500/30 transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-sky-500/40 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/70"
+        className="mx-auto mb-8 flex w-full max-w-md items-center justify-center rounded-2xl border border-cyan-200 bg-gradient-to-r from-cyan-500 
+        via-sky-500 to-blue-600 px-6 py-4 text-center text-lg font-semibold text-white shadow-xl 
+        shadow-sky-500/30 transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-sky-500/40 
+        focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300/70"
       >
         <p className="tracking-wide">
           Control de Acceso Personal

@@ -1,5 +1,4 @@
 import StarAnimation from "@/Components/common/StartAnimation";
-import LoginBtn from "@/Components/common/Login_Btn";
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Jersey_10 } from "next/font/google";

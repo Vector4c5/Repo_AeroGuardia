@@ -4,7 +4,7 @@ import { GiOpenBook } from "react-icons/gi";
 import { FaBars } from "react-icons/fa"; // Importar el ícono de menú hamburguesa
 import Link from "next/link";
 import { Jersey_10 } from '@next/font/google';
-import LoginBtn from "@/components/common/Login-Btn";
+import LoginBtn from "@/Components/common/Login_Btn";
 import { useState } from "react";
 
 const jersey_10 = Jersey_10({ weight: '400', subsets: ['latin'] });
@@ -15,32 +15,28 @@ export default function Header({ userName = "Player" }) {
     const navPages = [
         {
             name: "Home",
-            href: "/landing",
+            href: "/inicio",
             icon: <IoHomeOutline />
-        },
-        {
-            name: "Library",
-            href: "/library",
-            icon: <GiOpenBook />
-        },
+        }
     ];
 
     return (
         <main
-            className={`flex sm:flex-row items-center justify-between w-full h-auto py-2 sm:py-4 border-double border-8 border-purple-400 bg-black bg-opacity-50 ${jersey_10.className}
-            shadow-lg shadow-gray-500`}
+            className={`flex items-center justify-between w-full h-auto py-4 rounded-xl
+                bg-white bg-opacity-50 ${jersey_10.className}
+                shadow-lg shadow-gray-500/50`}
         >
             {/* Logo y título */}
             <div className="flex items-center justify-start w-auto">
                 <div className="relative w-20 h-20 sm:w-16 sm:h-16 mx-4">
                     <img
-                        src="/Logo_The_Cavern.jpeg"
+                        src="/Logo_AeroGuardia.png"
                         alt="Logo"
                         className="border-4 border-white rounded-full shadow-md shadow-gray-500"
                     />
                 </div>
-                <h1 className="text-4xl whitespace-nowrap sm:text-6xl text-white text-left">
-                    The Cavern
+                <h1 className="text-4xl whitespace-nowrap sm:text-6xl text-black text-left">
+                    AeroGuardia
                 </h1>
             </div>
 
