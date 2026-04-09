@@ -26,7 +26,7 @@ export default function Header({ userName = "Player" }) {
         <main
             className={`flex items-center justify-between w-full h-auto py-3 px-8
                 bg-white bg-opacity-50 ${roboto_condensed.className}
-                shadow-lg shadow-gray-500/50`}
+                shadow-lg shadow-gray-500/50 text-black`}
         >
             {/* Logo y título */}
             <div className="flex items-center justify-start w-auto">
@@ -101,10 +101,10 @@ export default function Header({ userName = "Player" }) {
                                 <div className="opacity-0 group-hover:opacity-100 transition duration-300 ease-in-out scale-125 sm:scale-150">
                                     <MdPlayArrow />
                                 </div>
-                                <div className="scale-125 sm:scale-150">
+                                <div className="scale-125 sm:scale-150 text-black">
                                     {page.icon}
                                 </div>
-                                <p className="text-xl sm:text-2xl">
+                                <p className="text-xl sm:text-2xl text-black">
                                     {page.name}
                                 </p>
                             </Link>
