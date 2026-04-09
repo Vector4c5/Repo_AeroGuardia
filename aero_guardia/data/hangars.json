@@ -1,0 +1,87 @@
+[
+  {
+    "id": "hangar-1775712668445-8mqn9",
+    "label": "Hangar de Vector",
+    "location": "Chihuahua",
+    "description": "Hangar dedicado a la avionica",
+    "hangarType": "mantenimiento",
+    "zoneTitle": "Hangar de mantenimiento",
+    "image": "/Hangar_Mantenimiento.jpg",
+    "aircraftList": [
+      {
+        "id": "XB-VTG",
+        "registration": "XB-VTG",
+        "model": "182",
+        "manufacturer": "Cessna",
+        "ownerPilot": "Pedro",
+        "entryReason": "Almacenamiento",
+        "willPerformWork": "no",
+        "tasks": [],
+        "arrivalConditions": [
+          {
+            "title": "Gasolina",
+            "description": "200 litros"
+          }
+        ],
+        "status": "Registrada"
+      }
+    ]
+  },
+  {
+    "id": "hangar-1",
+    "label": "Hangar Principal",
+    "location": "Terminal Norte",
+    "description": "Zona principal para aeronaves de linea.",
+    "hangarType": "mantenimiento",
+    "zoneTitle": "Hangar de mantenimiento",
+    "image": "/Hangar_Mantenimiento.jpg",
+    "aircraftList": [
+      {
+        "id": "XB-DGT",
+        "registration": "XB-DGT",
+        "model": "206",
+        "manufacturer": "Cessna",
+        "ownerPilot": "Roberto",
+        "entryReason": "Mantenimiento",
+        "willPerformWork": "si",
+        "tasks": [
+          {
+            "title": "Cambio de aceite",
+            "description": "Se le cambiara de aceite al motor"
+          },
+          {
+            "title": "Inflar llantas",
+            "description": "Se inflaran las llantas del avionm"
+          }
+        ],
+        "arrivalConditions": [
+          {
+            "title": "Horas de vuelo",
+            "description": "500 horas"
+          }
+        ],
+        "status": "Registrada"
+      },
+      {
+        "id": "AG-101",
+        "model": "Boeing 737-800",
+        "status": "Listo"
+      },
+      {
+        "id": "AG-224",
+        "model": "Airbus A320",
+        "status": "En revision"
+      },
+      {
+        "id": "AG-315",
+        "model": "Cessna 208",
+        "status": "En mantenimiento"
+      },
+      {
+        "id": "AG-402",
+        "model": "Embraer 190",
+        "status": "Listo"
+      }
+    ]
+  }
+]
