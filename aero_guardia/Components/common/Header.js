@@ -1,13 +1,15 @@
 import { IoHomeOutline } from "react-icons/io5";
 import { MdPlayArrow } from "react-icons/md";
-import { GiOpenBook } from "react-icons/gi";
 import { FaBars } from "react-icons/fa"; // Importar el ícono de menú hamburguesa
 import Link from "next/link";
 import { Jersey_10 } from '@next/font/google';
+import { Roboto_Condensed } from "next/font/google";
 import LoginBtn from "@/Components/common/Login_Btn";
 import { useState } from "react";
 
 const jersey_10 = Jersey_10({ weight: '400', subsets: ['latin'] });
+const roboto_condensed = Roboto_Condensed({ weight: ['400', '700'], subsets: ['latin'] });
+
 
 export default function Header({ userName = "Player" }) {
     const [menuOpen, setMenuOpen] = useState(false); // Estado para controlar el menú desplegable
@@ -22,20 +24,21 @@ export default function Header({ userName = "Player" }) {
 
     return (
         <main
-            className={`flex items-center justify-between w-full h-auto py-4 rounded-xl
-                bg-white bg-opacity-50 ${jersey_10.className}
+            className={`flex items-center justify-between w-full h-auto py-3 px-8
+                bg-white bg-opacity-50 ${roboto_condensed.className}
                 shadow-lg shadow-gray-500/50`}
         >
             {/* Logo y título */}
             <div className="flex items-center justify-start w-auto">
-                <div className="relative w-20 h-20 sm:w-16 sm:h-16 mx-4">
+                <div className="relative w-20 h-20  mx-4 pointer-none;">
                     <img
                         src="/Logo_AeroGuardia.png"
                         alt="Logo"
-                        className="border-4 border-white rounded-full shadow-md shadow-gray-500"
+                        className="w-full h-full border-4 border-white rounded-full shadow-md shadow-gray-500"
                     />
                 </div>
-                <h1 className="text-4xl whitespace-nowrap sm:text-6xl text-black text-left">
+
+                <h1 className={`text-5xl whitespace-nowrap text-black text-left ${jersey_10.className}`}>
                     AeroGuardia
                 </h1>
             </div>
@@ -101,7 +104,7 @@ export default function Header({ userName = "Player" }) {
                                 <div className="scale-125 sm:scale-150">
                                     {page.icon}
                                 </div>
-                                <p className="text-xl sm:text-3xl">
+                                <p className="text-xl sm:text-2xl">
                                     {page.name}
                                 </p>
                             </Link>

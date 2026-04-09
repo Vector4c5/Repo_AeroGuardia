@@ -1,11 +1,11 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
-import { Jersey_10 } from "next/font/google";
+import { Roboto_Condensed } from "next/font/google";
 import { FaUser } from "react-icons/fa";
 import { MdPlayArrow } from "react-icons/md";
 import { useEffect, useRef, useState } from "react";
 
-const jersey_10 = Jersey_10({ weight: "400", subsets: ["latin"] });
+const roboto_condensed = Roboto_Condensed({ weight: ['400', '700'], subsets: ['latin'] });
 
 export default function Login_Btn() {
     const { data: session } = useSession();
@@ -25,7 +25,7 @@ export default function Login_Btn() {
 
     if (session) {
         return (
-            <div ref={menuRef} className={`relative ${jersey_10.className}`}>
+            <div ref={menuRef} className={`relative ${roboto_condensed.className}`}>
                 <button
                     type="button"
                     onClick={() => setMenuOpen((prev) => !prev)}
@@ -37,7 +37,7 @@ export default function Login_Btn() {
                     <div className="scale-125 sm:scale-150">
                         <FaUser />
                     </div>
-                    <p className="text-xl sm:text-3xl truncate overflow-hidden whitespace-nowrap text-ellipsis max-w-40 sm:max-w-56">
+                    <p className="text-xl text-bold sm:text-2xl truncate overflow-hidden whitespace-nowrap text-ellipsis max-w-40 sm:max-w-56">
                         {session.user?.name || session.user?.email || "Usuario"}
                     </p>
                 </button>
@@ -75,7 +75,7 @@ export default function Login_Btn() {
     }
 
     return (
-        <div className={`relative ${jersey_10.className}`}>
+        <div className={`relative ${roboto_condensed.className}`}>
             <button
                 type="button"
                 onClick={() => signIn("google")}
@@ -87,7 +87,7 @@ export default function Login_Btn() {
                 <div className="scale-125 sm:scale-150">
                     <FaUser />
                 </div>
-                <p className="text-xl sm:text-3xl">Inicia sesion</p>
+                <p className="text-xl sm:text-2xl">Inicia sesion</p>
             </button>
         </div>
     );
