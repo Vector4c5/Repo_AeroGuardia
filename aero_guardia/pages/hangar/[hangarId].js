@@ -3,6 +3,8 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { Roboto_Condensed } from "next/font/google";
 import { useEffect, useState } from "react";
+import { FaPlus } from "react-icons/fa6";
+import { FiArrowLeft } from "react-icons/fi";
 import Header from "@/Components/common/Header";
 
 const roboto_condensed = Roboto_Condensed({ weight: ["400", "700"], subsets: ["latin"] });
@@ -215,16 +217,6 @@ export default function HangarDetailPage() {
     setIsAircraftModalOpen(true);
   };
 
-  const handleOpenEditAircraft = (aircraft) => {
-    setAircraftModalMode("edit");
-    setEditingAircraftId(aircraft.id);
-    setAircraftForm(toAircraftForm(aircraft));
-    setTaskDraft(EMPTY_ITEM_DRAFT);
-    setConditionDraft(EMPTY_ITEM_DRAFT);
-    setAircraftRequestError("");
-    setIsAircraftModalOpen(true);
-  };
-
   const handleCloseAircraftModal = () => {
     setIsAircraftModalOpen(false);
     setAircraftRequestError("");
@@ -325,16 +317,6 @@ export default function HangarDetailPage() {
       </div>
 
       <main className="mx-auto w-full max-w-5xl space-y-6">
-        <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <h1 className={`text-2xl font-bold text-slate-900 ${roboto_condensed.className}`}>Detalle de hangar</h1>
-          <Link
-            href="/inicio"
-            className={`rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-900 ${roboto_condensed.className}`}
-          >
-            Volver a Inicio
-          </Link>
-        </div>
-
         {isLoading && (
           <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className={`text-slate-600 ${roboto_condensed.className}`}>Cargando informacion...</p>
@@ -349,39 +331,53 @@ export default function HangarDetailPage() {
 
         {!isLoading && !error && hangar && (
           <>
-            <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-              <div className="relative h-52 w-full sm:h-64">
-                <Image
-                  src={hangar.image}
-                  alt={`Vista de ${hangar.label}`}
-                  fill
-                  sizes="(max-width: 640px) 100vw, 1200px"
-                  className="h-full w-full object-cover"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-slate-900/70 to-transparent"></div>
-                <div className="absolute bottom-4 left-4 text-white sm:bottom-6 sm:left-6">
-                  <p className={`text-xs uppercase tracking-[0.2em] text-slate-200 ${roboto_condensed.className}`}>{hangar.zoneTitle}</p>
-                  <h2 className={`text-xl font-semibold sm:text-2xl ${roboto_condensed.className}`}>{hangar.label}</h2>
-                  <p className={`text-sm text-slate-100 ${roboto_condensed.className}`}>{hangar.location || "Sin ubicacion"}</p>
+            <div className="relative">
+              <Link
+                href="/inicio"
+                aria-label="Volver al inicio"
+                className="absolute -left-20 top-6 z-20 inline-flex h-13 w-13 items-center justify-center 
+                rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition 
+                hover:border-slate-400 hover:bg-slate-50"
+              >
+                <FiArrowLeft size={30} className="text-black" />
+              </Link>
+
+              <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="relative flex min-h-96 w-full items-stretch sm:min-h-112">
+                  <Image
+                    src={hangar.image}
+                    alt={`Vista de ${hangar.label}`}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 1200px"
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-b from-slate-950/80 via-slate-950/35 to-slate-950/80"></div>
+                  <div className="absolute left-4 top-18 z-10 max-w-3xl space-y-2 text-left text-white sm:left-6 sm:top-24">
+                    <p className={`text-xl font-semibold uppercase tracking-[0.32em] text-slate-200 ${roboto_condensed.className}`}>
+                      {hangar.zoneTitle}
+                    </p>
+                    <h2 className={`text-4xl font-bold leading-none sm:text-6xl ${roboto_condensed.className}`}>
+                      {hangar.label}
+                    </h2>
+                    <p className={`text-base text-slate-100 sm:text-lg ${roboto_condensed.className}`}>
+                      {hangar.location || "Sin ubicacion"}
+                    </p>
+                  </div>
+                  {hangar.description && (
+                    <div className="absolute z-10 max-w-2xl rounded-2xl border border-white/10 bg-black/35 py-3 text-white 
+                    backdrop-blur-sm sm:bottom-6 sm:left-6">
+                      <p className={`text-xl leading-relaxed text-slate-100 ${roboto_condensed.className}`}>
+                        {hangar.description}
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </div>
-              {hangar.description && (
-                <div className="border-t border-slate-200 px-4 py-3">
-                  <p className={`text-sm text-slate-600 ${roboto_condensed.className}`}>{hangar.description}</p>
-                </div>
-              )}
-            </section>
+              </section>
+            </div>
 
             <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <h3 className={`text-xl font-bold text-slate-800 ${roboto_condensed.className}`}>Aeronaves del hangar</h3>
-                <button
-                  type="button"
-                  onClick={handleOpenCreateAircraft}
-                  className={`rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 ${roboto_condensed.className}`}
-                >
-                  Agregar aeronave
-                </button>
               </div>
 
               {aircraftRequestError && (
@@ -392,73 +388,64 @@ export default function HangarDetailPage() {
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {aircraftList.map((aircraft) => (
-                  <article key={aircraft.id} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3">
-                    <div className="mb-2 flex items-start justify-between gap-2">
-                      <Link
-                        href={`/hangar/${hangarId}/aeronave/${encodeURIComponent(aircraft.id)}`}
-                        className="rounded-md transition hover:bg-slate-100 p-1 -m-1"
-                      >
+                  <article key={aircraft.id} className="flex h-full flex-col rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 shadow-sm">
+                    <div className="space-y-2">
+                      <div>
                         <p className={`text-xs font-semibold uppercase text-slate-500 ${roboto_condensed.className}`}>Matricula</p>
-                        <p className={`text-sm font-bold text-slate-800 ${roboto_condensed.className}`}>{aircraft.registration || aircraft.id}</p>
-                      </Link>
-                      <div className="flex gap-1">
-                        <Link
-                          href={`/hangar/${hangarId}/aeronave/${encodeURIComponent(aircraft.id)}`}
-                          className={`rounded-md bg-cyan-100 px-2 py-1 text-xs font-semibold text-cyan-700 transition hover:bg-cyan-200 ${roboto_condensed.className}`}
-                        >
-                          Ver
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEditAircraft(aircraft)}
-                          className={`rounded-md bg-slate-200 px-2 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-300 ${roboto_condensed.className}`}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteAircraft(aircraft.id)}
-                          className={`rounded-md bg-red-100 px-2 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-200 ${roboto_condensed.className}`}
-                        >
-                          Borrar
-                        </button>
+                        <p className={`text-base font-bold text-slate-800 ${roboto_condensed.className}`}>{aircraft.registration || aircraft.id}</p>
                       </div>
+
+                      <p className={`text-xs text-slate-600 ${roboto_condensed.className}`}>
+                        <span className="font-semibold">Modelo:</span> {aircraft.model || "N/A"}
+                      </p>
+                      <p className={`text-xs text-slate-600 ${roboto_condensed.className}`}>
+                        <span className="font-semibold">Fabricante:</span> {aircraft.manufacturer || "N/A"}
+                      </p>
+                      <p className={`text-xs text-slate-600 ${roboto_condensed.className}`}>
+                        <span className="font-semibold">Responsable:</span> {aircraft.ownerPilot || "N/A"}
+                      </p>
+                      <p className={`text-xs text-slate-600 ${roboto_condensed.className}`}>
+                        <span className="font-semibold">Motivo:</span> {aircraft.entryReason || "N/A"}
+                      </p>
+
+                      {aircraft.arrivalConditions.length > 0 && (
+                        <div className="rounded-md border border-slate-200 bg-white p-2">
+                          <p className={`mb-1 text-xs font-semibold text-slate-700 ${roboto_condensed.className}`}>Estado de llegada</p>
+                          {aircraft.arrivalConditions.map((condition, index) => (
+                            <p key={`${aircraft.id}-condition-${index}`} className={`text-xs text-slate-600 ${roboto_condensed.className}`}>
+                              {condition.title}: {condition.description}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+
+                      {aircraft.willPerformWork === "si" && aircraft.tasks.length > 0 && (
+                        <div className="rounded-md border border-cyan-200 bg-cyan-50 p-2">
+                          <p className={`mb-1 text-xs font-semibold text-cyan-900 ${roboto_condensed.className}`}>Tareas a realizar</p>
+                          {aircraft.tasks.map((task, index) => (
+                            <p key={`${aircraft.id}-task-${index}`} className={`text-xs text-cyan-900 ${roboto_condensed.className}`}>
+                              {task.title}: {task.description}
+                            </p>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
-                    <p className={`text-xs text-slate-600 ${roboto_condensed.className}`}>
-                      <span className="font-semibold">Modelo:</span> {aircraft.model || "N/A"}
-                    </p>
-                    <p className={`text-xs text-slate-600 ${roboto_condensed.className}`}>
-                      <span className="font-semibold">Fabricante:</span> {aircraft.manufacturer || "N/A"}
-                    </p>
-                    <p className={`text-xs text-slate-600 ${roboto_condensed.className}`}>
-                      <span className="font-semibold">Responsable:</span> {aircraft.ownerPilot || "N/A"}
-                    </p>
-                    <p className={`text-xs text-slate-600 ${roboto_condensed.className}`}>
-                      <span className="font-semibold">Motivo:</span> {aircraft.entryReason || "N/A"}
-                    </p>
-
-                    {aircraft.arrivalConditions.length > 0 && (
-                      <div className="mt-2 rounded-md border border-slate-200 bg-white p-2">
-                        <p className={`mb-1 text-xs font-semibold text-slate-700 ${roboto_condensed.className}`}>Estado de llegada</p>
-                        {aircraft.arrivalConditions.map((condition, index) => (
-                          <p key={`${aircraft.id}-condition-${index}`} className={`text-xs text-slate-600 ${roboto_condensed.className}`}>
-                            {condition.title}: {condition.description}
-                          </p>
-                        ))}
-                      </div>
-                    )}
-
-                    {aircraft.willPerformWork === "si" && aircraft.tasks.length > 0 && (
-                      <div className="mt-2 rounded-md border border-cyan-200 bg-cyan-50 p-2">
-                        <p className={`mb-1 text-xs font-semibold text-cyan-900 ${roboto_condensed.className}`}>Tareas a realizar</p>
-                        {aircraft.tasks.map((task, index) => (
-                          <p key={`${aircraft.id}-task-${index}`} className={`text-xs text-cyan-900 ${roboto_condensed.className}`}>
-                            {task.title}: {task.description}
-                          </p>
-                        ))}
-                      </div>
-                    )}
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      <Link
+                        href={`/hangar/${hangarId}/aeronave/${encodeURIComponent(aircraft.id)}`}
+                        className={`flex w-full items-center justify-center rounded-lg bg-cyan-600 px-3 py-3 text-sm font-semibold text-white transition hover:bg-cyan-700 ${roboto_condensed.className}`}
+                      >
+                        Ver
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteAircraft(aircraft.id)}
+                        className={`flex w-full items-center justify-center rounded-lg bg-red-100 px-3 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-200 ${roboto_condensed.className}`}
+                      >
+                        Borrar
+                      </button>
+                    </div>
                   </article>
                 ))}
               </div>
@@ -470,11 +457,31 @@ export default function HangarDetailPage() {
               )}
             </section>
 
+            <button
+              type="button"
+              onClick={handleOpenCreateAircraft}
+              aria-label="Agregar aeronave"
+              title="Agregar aeronave"
+              className={`group fixed bottom-6 right-15 z-40 flex h-20 w-20 items-center justify-center
+                rounded-full bg-cyan-600 text-3xl font-bold text-white shadow-lg shadow-cyan-500/40
+                transition hover:bg-cyan-700 focus-visible:outline-none focus-visible:ring-4
+                focus-visible:ring-cyan-300 ${roboto_condensed.className}`}
+            >
+              <span aria-hidden="true">
+                <FaPlus size={40} className="text-white" />
+              </span>
+              <span className={`pointer-events-none absolute -translate-y-20 whitespace-nowrap
+                rounded-md bg-cyan-900 px-3 py-1 text-lg font-semibold text-white opacity-0 shadow transition
+                group-hover:opacity-100 ${roboto_condensed.className}`}>
+                Agregar aeronave
+              </span>
+            </button>
+
             {isAircraftModalOpen && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
-                <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
+                <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
                   <h3 className={`mb-4 text-lg font-bold text-slate-900 ${roboto_condensed.className}`}>
-                    {aircraftModalMode === "create" ? "Nueva aeronave" : "Editar aeronave"}
+                    Nueva aeronave
                   </h3>
 
                   <form onSubmit={handleSubmitAircraft} className="grid grid-cols-1 gap-3">
@@ -617,7 +624,7 @@ export default function HangarDetailPage() {
                       <button
                         type="submit"
                         disabled={isSubmittingAircraft}
-                        className={`rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70 ${roboto_condensed.className}`}
+                        className={`rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-70 ${roboto_condensed.className}`}
                       >
                         {isSubmittingAircraft ? "Guardando..." : "Guardar aeronave"}
                       </button>
