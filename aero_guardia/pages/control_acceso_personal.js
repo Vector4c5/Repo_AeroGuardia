@@ -32,7 +32,7 @@ export default function ControlAcceso() {
             <th>Nombre</th>
             <th>Hora</th>
             <th>Tipo</th>
-             <th>Boton de prueba</th>
+      
             
           </tr>
         </thead>
