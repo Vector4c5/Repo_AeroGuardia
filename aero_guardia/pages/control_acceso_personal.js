@@ -32,6 +32,9 @@ export default function ControlAcceso() {
             <th>Nombre</th>
             <th>Hora</th>
             <th>Tipo</th>
+                       <th>Tipo</th>
+
+
       
             
           </tr>
