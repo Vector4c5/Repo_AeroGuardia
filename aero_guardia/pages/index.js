@@ -13,9 +13,8 @@ export default function Home() {
   const { data: session } = useSession();
 
   return (
-    <div className="relative z-0 flex min-h-screen w-full flex-col items-center justify-center text-black">
+    <div className="relative z-0 flex min-h-screen w-full flex-col items-center justify-center text-black bg-black">
       <StarAnimation />
-
       <div className="fixed inset-0 z-0 w-full h-full pointer-events-none">
         <img
           src="/Fondo_Hangares.jpg"
