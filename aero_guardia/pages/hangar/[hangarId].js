@@ -311,7 +311,7 @@ export default function HangarDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-5 py-28 text-slate-900 sm:px-8 md:px-12">
+    <div className="min-h-screen bg-slate-100 px-3 pt-24 pb-8 text-slate-900 sm:px-6 sm:pt-28 md:px-10 md:pt-32">
       <div className="fixed left-0 top-0 z-50 w-screen">
         <Header />
       </div>
@@ -335,38 +335,38 @@ export default function HangarDetailPage() {
               <Link
                 href="/inicio"
                 aria-label="Volver al inicio"
-                className="absolute -left-20 top-6 z-20 inline-flex h-13 w-13 items-center justify-center 
+                className="absolute left-3 top-3 z-20 inline-flex h-10 w-10 items-center justify-center 
                 rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition 
-                hover:border-slate-400 hover:bg-slate-50"
+                hover:border-slate-400 hover:bg-slate-50 sm:h-12 sm:w-12 md:-left-16 md:top-6 md:h-13 md:w-13 lg:-left-20"
               >
                 <FiArrowLeft size={30} className="text-black" />
               </Link>
 
               <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="relative flex min-h-96 w-full items-stretch sm:min-h-112">
+                <div className="relative w-full aspect-[4/3] sm:aspect-[16/9]">
                   <Image
                     src={hangar.image}
                     alt={`Vista de ${hangar.label}`}
                     fill
                     sizes="(max-width: 640px) 100vw, 1200px"
-                    className="h-full w-full object-cover"
+                    className="object-cover"
                   />
                   <div className="absolute inset-0 bg-linear-to-b from-slate-950/80 via-slate-950/35 to-slate-950/80"></div>
-                  <div className="absolute left-4 top-18 z-10 max-w-3xl space-y-2 text-left text-white sm:left-6 sm:top-24">
-                    <p className={`text-xl font-semibold uppercase tracking-[0.32em] text-slate-200 ${roboto_condensed.className}`}>
+                  <div className="absolute left-3 top-14 z-10 max-w-3xl space-y-1 text-left text-white sm:left-6 sm:top-24 sm:space-y-2">
+                    <p className={`text-sm font-semibold uppercase tracking-[0.2em] text-slate-200 sm:text-xl sm:tracking-[0.32em] ${roboto_condensed.className}`}>
                       {hangar.zoneTitle}
                     </p>
-                    <h2 className={`text-4xl font-bold leading-none sm:text-6xl ${roboto_condensed.className}`}>
+                    <h2 className={`text-3xl font-bold leading-none sm:text-6xl ${roboto_condensed.className}`}>
                       {hangar.label}
                     </h2>
-                    <p className={`text-base text-slate-100 sm:text-lg ${roboto_condensed.className}`}>
+                    <p className={`text-sm text-slate-100 sm:text-lg ${roboto_condensed.className}`}>
                       {hangar.location || "Sin ubicacion"}
                     </p>
                   </div>
                   {hangar.description && (
-                    <div className="absolute z-10 max-w-2xl rounded-2xl border border-white/10 bg-black/35 py-3 text-white 
-                    backdrop-blur-sm sm:bottom-6 sm:left-6">
-                      <p className={`text-xl leading-relaxed text-slate-100 ${roboto_condensed.className}`}>
+                    <div className="absolute bottom-3 left-3 right-3 z-10 max-w-2xl rounded-2xl border border-white/10 bg-black/35 px-3 py-2 text-white 
+                    backdrop-blur-sm sm:bottom-6 sm:left-6 sm:right-auto sm:px-4 sm:py-3">
+                      <p className={`text-sm leading-relaxed text-slate-100 sm:text-xl ${roboto_condensed.className}`}>
                         {hangar.description}
                       </p>
                     </div>
@@ -386,7 +386,7 @@ export default function HangarDetailPage() {
                 </p>
               )}
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {aircraftList.map((aircraft) => (
                   <article key={aircraft.id} className="flex h-full flex-col rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 shadow-sm">
                     <div className="space-y-2">
@@ -431,7 +431,7 @@ export default function HangarDetailPage() {
                       )}
                     </div>
 
-                    <div className="mt-4 grid grid-cols-2 gap-2">
+                    <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <Link
                         href={`/hangar/${hangarId}/aeronave/${encodeURIComponent(aircraft.id)}`}
                         className={`flex w-full items-center justify-center rounded-lg bg-cyan-600 px-3 py-3 text-sm font-semibold text-white transition hover:bg-cyan-700 ${roboto_condensed.className}`}
@@ -462,16 +462,17 @@ export default function HangarDetailPage() {
               onClick={handleOpenCreateAircraft}
               aria-label="Agregar aeronave"
               title="Agregar aeronave"
-              className={`group fixed bottom-6 right-15 z-40 flex h-20 w-20 items-center justify-center
-                rounded-full bg-cyan-600 text-3xl font-bold text-white shadow-lg shadow-cyan-500/40
+              className={`group fixed bottom-4 right-4 z-40 flex h-14 w-14 items-center justify-center
+                rounded-full bg-cyan-600 text-2xl font-bold text-white shadow-lg shadow-cyan-500/40
                 transition hover:bg-cyan-700 focus-visible:outline-none focus-visible:ring-4
-                focus-visible:ring-cyan-300 ${roboto_condensed.className}`}
+                focus-visible:ring-cyan-300 sm:bottom-6 sm:h-16 sm:w-16 sm:text-3xl md:right-15 md:h-20 md:w-20 ${roboto_condensed.className}`}
             >
               <span aria-hidden="true">
-                <FaPlus size={40} className="text-white" />
+                <FaPlus size={28} className="text-white sm:h-8 sm:w-8 md:h-10 md:w-10" />
               </span>
-              <span className={`pointer-events-none absolute -translate-y-20 whitespace-nowrap
-                rounded-md bg-cyan-900 px-3 py-1 text-lg font-semibold text-white opacity-0 shadow transition
+              <span className={`pointer-events-none absolute -translate-y-16 whitespace-nowrap
+                rounded-md bg-cyan-900 px-2 py-1 text-xs font-semibold text-white opacity-0 shadow transition
+                sm:-translate-y-20 sm:px-3 sm:text-lg
                 group-hover:opacity-100 ${roboto_condensed.className}`}>
                 Agregar aeronave
               </span>
@@ -620,7 +621,7 @@ export default function HangarDetailPage() {
                       </p>
                     )}
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row">
                       <button
                         type="submit"
                         disabled={isSubmittingAircraft}
