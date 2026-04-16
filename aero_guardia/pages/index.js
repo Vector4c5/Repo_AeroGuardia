@@ -22,7 +22,9 @@ export default function Home() {
           alt="Inicio"
           className="w-full h-full object-cover opacity-50"
         />
-      </div>
+      </div>              
+
+   
 
       {session ? (
         <section className="relative z-10 flex flex-col items-center justify-center w-full px-6 text-center">
