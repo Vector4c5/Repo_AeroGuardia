@@ -1,15 +1,5 @@
 [
   {
-    "id": "hangar-1776316369716-vsn3f",
-    "label": "Hangar secundario",
-    "location": "Terminal Sur",
-    "description": "Zona de resguardo de aeronaves",
-    "hangarType": "almacenamiento",
-    "zoneTitle": "Hangar de almacenamiento",
-    "image": "/Hangar_Almacenamiento.jpg",
-    "aircraftList": []
-  },
-  {
     "id": "hangar-1",
     "label": "Hangar Principal",
     "location": "Terminal Norte",
