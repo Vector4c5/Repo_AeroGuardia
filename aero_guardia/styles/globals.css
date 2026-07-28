@@ -65,3 +65,9 @@ body {
 .login-link:hover::before {
   transform: scaleX(1);
 }
+
+.aeroguardia-toast {
+  font-family: inherit;
+  border-radius: 0.75rem;
+}
+
