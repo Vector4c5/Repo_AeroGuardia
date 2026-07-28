@@ -1,6 +1,6 @@
 import StarAnimation from "@/Components/common/StartAnimation";
 import Link from "next/link";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Jersey_10 } from "next/font/google";
 import { AiFillSafetyCertificate } from "react-icons/ai";
 import { FaComputer } from "react-icons/fa6";
@@ -105,9 +105,8 @@ export default function Home() {
 
               {/* Botón */}
               <div className="w-full h-auto flex items-center justify-center px-2 mt-2 sm:mt-4">
-                <button
-                  type="button"
-                  onClick={() => signIn("google")}
+                <Link
+                  href="/login"
                   className="group relative w-full sm:w-11/12 md:w-10/12 h-auto p-2 sm:p-3 border-2 sm:border-3
                   border-double border-blue-700 rounded-xl bg-black/60 hover:scale-95 
                   transform transition duration-500 ease-in-out overflow-hidden"
@@ -117,13 +116,13 @@ export default function Home() {
                     justify-center py-3 sm:py-3 transition duration-500 ease-in-out"
                   >
                     <p className={`${jersey_10.className} text-center text-lg sm:text-lg md:text-xl lg:text-3xl text-white group-hover:text-black px-2`}>
-                      Continuar Con Google
+                      Iniciar sesion
                     </p>
                   </span>
                   <span className="absolute top-0 left-0 w-full h-full bg-blue-300/60 
                   transform translate-y-full group-hover:translate-y-0 transition duration-500 
                   ease-in-out" />
-                </button>
+                </Link>
               </div>
             </div>
           </div>
