@@ -1,14 +1,14 @@
 import { useRouter } from "next/router";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { Jersey_10 } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { Roboto_Condensed } from "next/font/google";
 
 import Header from "@/Components/common/Header";
 import { notifyError, notifySuccess } from "@/lib/notifications";
 import { formatDateInput } from "@/lib/userProfile";
 
-const jersey_10 = Jersey_10({ weight: "400", subsets: ["latin"] });
+const jersey_10 = Montserrat({ weight: ["700", "800"], subsets: ["latin"] });
 const roboto_condensed = Roboto_Condensed({
   weight: ["400", "700"],
   subsets: ["latin"],
@@ -171,11 +171,11 @@ export default function ProfilePage() {
         <div className="border-b border-slate-200 bg-white px-4 py-3 shadow-sm">
           <div className="mx-auto flex max-w-3xl items-center gap-3">
             <img
-              src="/Logo_AeroGuardia.png"
+              src="/Logo_AeroGuardia_Icon.png"
               alt="AeroGuardia"
               className="h-10 w-10 rounded-full border-2 border-white object-cover shadow"
             />
-            <h1 className={`text-2xl text-black sm:text-3xl ${jersey_10.className}`}>
+            <h1 className={`text-2xl tracking-tight text-black sm:text-3xl ${jersey_10.className}`}>
               AeroGuardia
             </h1>
           </div>

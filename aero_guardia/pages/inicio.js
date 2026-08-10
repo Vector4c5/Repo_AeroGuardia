@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Roboto_Condensed } from "next/font/google";
-import { Jersey_10 } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { useCallback, useEffect, useState } from "react";
 import Header from "@/Components/common/Header";
 import { HANGAR_TYPE_OPTIONS, getHangarTypeConfig } from "@/lib/hangarTypes";
@@ -14,7 +14,7 @@ import { RiAlarmWarningFill } from "react-icons/ri";
 import { MdEmergency } from "react-icons/md";
 
 const roboto_condensed = Roboto_Condensed({ weight: ["400", "700"], subsets: ["latin"] });
-const jersey_10 = Jersey_10({ weight: "400", subsets: ["latin"] });
+const jersey_10 = Montserrat({ weight: ["700", "800"], subsets: ["latin"] });
 
 const emptyForm = {
   label: "",
