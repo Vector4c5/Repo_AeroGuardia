@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
-import { Jersey_10 } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { Roboto_Condensed } from "next/font/google";
 import { useEffect } from "react";
 import { FaUserLock } from "react-icons/fa6";
 
-const jersey_10 = Jersey_10({ weight: "400", subsets: ["latin"] });
+const jersey_10 = Montserrat({ weight: ["700", "800"], subsets: ["latin"] });
 const roboto_condensed = Roboto_Condensed({
   weight: ["400", "700"],
   subsets: ["latin"],
@@ -46,7 +46,7 @@ function CompleteProfileLock({ forceProfile = false }) {
           </div>
           <div className="flex w-full flex-col items-center justify-center gap-3 lg:w-1/2 lg:items-start">
             <h1
-              className={`text-center text-3xl text-black sm:text-4xl md:text-5xl lg:text-left ${jersey_10.className}`}
+              className={`text-center text-3xl tracking-tight text-black sm:text-4xl md:text-5xl lg:text-left ${jersey_10.className}`}
             >
               AeroGuardia
             </h1>

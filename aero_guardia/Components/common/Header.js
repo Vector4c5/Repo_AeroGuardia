@@ -4,13 +4,13 @@ import { FaBars, FaClipboardList, FaTimes } from "react-icons/fa";
 import { RiAlarmWarningFill } from "react-icons/ri";
 import { FaPlaneLock } from "react-icons/fa6";
 import Link from "next/link";
-import { Jersey_10 } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import { Roboto_Condensed } from "next/font/google";
 import LoginBtn from "@/Components/common/Login_Btn";
 import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 
-const jersey_10 = Jersey_10({ weight: "400", subsets: ["latin"] });
+const jersey_10 = Montserrat({ weight: ["700", "800"], subsets: ["latin"] });
 const roboto_condensed = Roboto_Condensed({
   weight: ["400", "700"],
   subsets: ["latin"],
@@ -88,12 +88,12 @@ export default function Header() {
           className="flex min-w-0 items-center gap-2 sm:gap-3"
         >
           <img
-            src="/Logo_AeroGuardia.png"
+            src="/Logo_AeroGuardia_Icon.png"
             alt="Logo AeroGuardia"
             className="h-10 w-10 shrink-0 rounded-full border-2 border-white object-cover shadow-md shadow-gray-400 sm:h-12 sm:w-12 lg:h-14 lg:w-14 lg:border-[3px]"
           />
           <h1
-            className={`truncate text-xl text-black sm:text-2xl md:text-3xl lg:text-4xl ${jersey_10.className}`}
+            className={`truncate text-xl tracking-tight text-black sm:text-2xl md:text-3xl lg:text-4xl ${jersey_10.className}`}
           >
             AeroGuardia
           </h1>
