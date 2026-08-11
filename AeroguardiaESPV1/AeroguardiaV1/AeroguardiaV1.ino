@@ -3,10 +3,11 @@
 #include <SPI.h>
 #include <MFRC522.h>
 #include <ESP32Servo.h>
+#include "secrets.h"
 
 // -------- WIFI --------
-const char* ssid = "Mega-2.4G-D8B1";
-const char* password = "unWbDdjh3K";
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
 
 // -------- RFID --------
 #define SS_PIN 5
@@ -70,6 +71,7 @@ void loop() {
 
   String uid = "";
   for (byte i = 0; i < rfid.uid.size; i++) {
+    if (rfid.uid.uidByte[i] < 0x10) uid += "0";
     uid += String(rfid.uid.uidByte[i], HEX);
   }
   uid.toUpperCase();
