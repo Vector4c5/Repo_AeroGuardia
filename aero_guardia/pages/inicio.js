@@ -2,14 +2,14 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Roboto_Condensed } from "next/font/google";
 import { Montserrat } from "next/font/google";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Header from "@/Components/common/Header";
 import { HANGAR_TYPE_OPTIONS, getHangarTypeConfig } from "@/lib/hangarTypes";
 import { formatInviteExpiry } from "@/lib/hangarInvite";
 import { notifyError, notifySuccess } from "@/lib/notifications";
 import { IoMenu } from "react-icons/io5";
 import { FaPlus, FaPlaneLock, FaUserPlus } from "react-icons/fa6";
-import { FaPlane, FaArrowRight, FaCopy } from "react-icons/fa";
+import { FaPlane, FaArrowRight, FaCopy, FaClipboardList } from "react-icons/fa";
 import { RiAlarmWarningFill } from "react-icons/ri";
 import { MdEmergency } from "react-icons/md";
 
@@ -24,13 +24,19 @@ const emptyForm = {
   baseAirport: "",
 };
 
-const ROLE_LABELS = { admin: "Administrador", engineer: "Ingeniero", technician: "Técnico" };
 const hangarKey = (h) => String(h?.id || h?._id || "");
+
+const formatEventDate = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("es-MX", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+};
+
 const inputCls = `rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-cyan-300 focus:ring-2 sm:py-3 ${roboto_condensed.className}`;
 const btnCyan = `rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:opacity-70 sm:py-3 ${roboto_condensed.className}`;
 const btnGray = `rounded-lg bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-300 sm:py-3 ${roboto_condensed.className}`;
 const btnRed = `rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-70 sm:py-3 ${roboto_condensed.className}`;
-const cardLink = `flex h-auto flex-1 items-center justify-center gap-2 rounded-xl border bg-white px-3 py-3 shadow-md transition duration-500 hover:scale-[0.95] sm:px-4 sm:py-4 md:px-6 ${roboto_condensed.className}`;
+const cardLink = `flex h-auto flex-1 items-center justify-center gap-2 rounded-xl border px-3 py-3 shadow-md transition duration-500 hover:scale-[0.95] sm:px-4 sm:py-4 md:px-6 ${roboto_condensed.className}`;
 
 async function readJson(res) {
   try {
@@ -44,6 +50,22 @@ function Modal({ children, dark }) {
   return (
     <div className={`fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 ${dark ? "bg-slate-900/70" : "bg-slate-900/55"}`}>
       {children}
+    </div>
+  );
+}
+
+function StatCard({ icon, label, value, tone = "default" }) {
+  const toneCls = tone === "amber" ? "border-amber-300 bg-amber-50" : "border-slate-200 bg-white";
+  const iconToneCls = tone === "amber" ? "bg-amber-500 text-white" : "bg-cyan-600 text-white";
+  return (
+    <div className={`flex items-center gap-3 rounded-xl border p-3 shadow-sm sm:p-4 ${toneCls}`}>
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg sm:h-12 sm:w-12 sm:text-xl ${iconToneCls}`}>
+        {icon}
+      </div>
+      <div className="min-w-0">
+        <p className={`text-2xl font-bold leading-none text-slate-900 sm:text-3xl ${roboto_condensed.className}`}>{value}</p>
+        <p className={`mt-1 truncate text-xs font-semibold uppercase tracking-wide text-slate-500 sm:text-sm ${roboto_condensed.className}`}>{label}</p>
+      </div>
     </div>
   );
 }
@@ -67,9 +89,7 @@ export default function Inicio() {
   const [menuId, setMenuId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [leaveHangar, setLeaveHangar] = useState(null);
-  const [removeMember, setRemoveMember] = useState(null);
   const [revealingId, setRevealingId] = useState(null);
-  const [membersOpenId, setMembersOpenId] = useState(null);
 
   const loadHangars = useCallback(async ({ showLoading = true } = {}) => {
     if (!authed) return;
@@ -131,13 +151,13 @@ export default function Inicio() {
   }, [hangars, loadHangars]);
 
   useEffect(() => {
-    const open = addOpen || joinOpen || deleteId || leaveHangar || removeMember;
+    const open = addOpen || joinOpen || deleteId || leaveHangar;
     if (!open) return;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [addOpen, joinOpen, deleteId, leaveHangar, removeMember]);
+  }, [addOpen, joinOpen, deleteId, leaveHangar]);
 
   const upsert = (updated) => {
     const key = hangarKey(updated);
@@ -293,24 +313,6 @@ export default function Inicio() {
     }
   };
 
-  const handleRemoveMember = async () => {
-    if (!removeMember) return;
-    setBusy(true);
-    try {
-      const data = await patchHangar(removeMember.hangarId, {
-        action: "remove_member",
-        memberUserId: removeMember.member.userId,
-      });
-      if (data.hangar) upsert(data.hangar);
-      setRemoveMember(null);
-      notifySuccess(data.message || "Miembro expulsado");
-    } catch (err) {
-      notifyError(err.message);
-    } finally {
-      setBusy(false);
-    }
-  };
-
   const handleLeave = async () => {
     if (!leaveHangar) return;
     const id = hangarKey(leaveHangar);
@@ -328,6 +330,17 @@ export default function Inicio() {
   };
 
   const pendingDelete = hangars.find((h) => hangarKey(h) === String(deleteId));
+
+  const stats = useMemo(() => {
+    const allAircraft = Object.values(aircraftByHangar).flat();
+    const inHangar = allAircraft.filter((ac) => ac.status !== "Salida").length;
+    const departed = allAircraft.filter((ac) => ac.status === "Salida").length;
+    const pendingTasks = allAircraft.reduce((sum, ac) => {
+      const tasks = Array.isArray(ac.maintenanceTasks) ? ac.maintenanceTasks : [];
+      return sum + tasks.filter((t) => t.status === "pending").length;
+    }, 0);
+    return { hangarCount: hangars.length, inHangar, departed, pendingTasks };
+  }, [hangars, aircraftByHangar]);
 
   if (status === "loading") {
     return (
@@ -429,21 +442,6 @@ export default function Inicio() {
           </Modal>
         )}
 
-        {removeMember && (
-          <Modal dark>
-            <div className="w-full max-w-md rounded-2xl border border-red-200 bg-white p-5 shadow-2xl sm:p-6">
-              <h3 className={`mb-2 text-lg font-bold text-red-700 ${roboto_condensed.className}`}>Expulsar miembro</h3>
-              <p className={`mb-5 text-sm text-slate-600 ${roboto_condensed.className}`}>
-                ¿Expulsar a {removeMember.member.displayLabel || removeMember.member.name || "este usuario"}?
-              </p>
-              <div className="flex gap-2">
-                <button type="button" disabled={busy} onClick={handleRemoveMember} className={btnRed}>Expulsar</button>
-                <button type="button" onClick={() => setRemoveMember(null)} className={btnGray}>Cancelar</button>
-              </div>
-            </div>
-          </Modal>
-        )}
-
         {leaveHangar && (
           <Modal dark>
             <div className="w-full max-w-md rounded-2xl border border-amber-200 bg-white p-5 shadow-2xl sm:p-6">
@@ -459,6 +457,20 @@ export default function Inicio() {
               </div>
             </div>
           </Modal>
+        )}
+
+        {!isLoading && hangars.length > 0 && (
+          <section aria-label="Resumen general" className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+            <StatCard icon={<FaPlaneLock />} label="Hangares" value={stats.hangarCount} />
+            <StatCard icon={<FaPlane />} label="En hangar" value={stats.inHangar} />
+            <StatCard icon={<FaArrowRight />} label="Con salida" value={stats.departed} />
+            <StatCard
+              icon={<FaClipboardList />}
+              label="Tareas pendientes"
+              value={stats.pendingTasks}
+              tone={stats.pendingTasks > 0 ? "amber" : "default"}
+            />
+          </section>
         )}
 
         {isLoading ? (
@@ -573,41 +585,19 @@ export default function Inicio() {
                         </div>
                       )}
                     </div>
-
-                    <button type="button" onClick={() => setMembersOpenId((p) => (p === id ? null : id))} className={`mt-3 text-sm font-semibold text-slate-700 hover:text-cyan-700 ${roboto_condensed.className}`}>
-                      Miembros ({hangar.members?.length || 0}) {membersOpenId === id ? "▴" : "▾"}
-                    </button>
-                    {membersOpenId === id && (
-                      <div className="mt-2 space-y-2">
-                        {(hangar.members || []).length === 0 ? (
-                          <p className={`text-xs text-slate-500 ${roboto_condensed.className}`}>Sin miembros aún.</p>
-                        ) : (
-                          hangar.members.map((m) => (
-                            <div key={m.userId} className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                              <div className="min-w-0">
-                                <p className={`truncate text-sm font-medium ${roboto_condensed.className}`}>{m.displayLabel || m.name || m.email}</p>
-                                <p className={`text-xs text-slate-500 ${roboto_condensed.className}`}>{ROLE_LABELS[m.role] || m.role || "Miembro"}</p>
-                              </div>
-                              <button type="button" onClick={() => setRemoveMember({ hangarId: id, member: m })} className={`shrink-0 rounded-md px-2 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 ${roboto_condensed.className}`}>
-                                Expulsar
-                              </button>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    )}
                   </div>
                 )}
 
                 <div className="flex flex-col gap-3 p-2 sm:gap-4 sm:p-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                    {aircraftList.slice(0, 4).map((ac) => {
+                    {aircraftList.slice(0, 8).map((ac) => {
                       const acId = ac._id || ac.id || ac.registration;
                       const pendingCount = Array.isArray(ac.maintenanceTasks)
                         ? ac.maintenanceTasks.filter((t) => t.status === "pending")
                             .length
                         : 0;
                       const isDeparted = ac.status === "Salida";
+                      const entryLabel = ac.entryDate ? formatEventDate(ac.entryDate) : "";
 
                       return (
                         <Link
@@ -658,6 +648,11 @@ export default function Inicio() {
                                   ? `${pendingCount} pendiente${pendingCount === 1 ? "" : "s"}`
                                   : ac.status || "En hangar"}
                             </p>
+                            {entryLabel && (
+                              <p className="mt-0.5 truncate text-[10px] text-slate-400 sm:text-xs">
+                                Ingreso: {entryLabel}
+                              </p>
+                            )}
                           </div>
                         </Link>
                       );
@@ -669,19 +664,27 @@ export default function Inicio() {
                         Sin aeronaves registradas
                       </p>
                     )}
+                    {aircraftList.length > 8 && (
+                      <Link
+                        href={`/hangar/${id}`}
+                        className={`flex w-full items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 py-3 text-xs font-semibold text-slate-500 hover:border-cyan-300 hover:text-cyan-700 sm:text-sm ${roboto_condensed.className}`}
+                      >
+                        Ver las {aircraftList.length - 8} aeronaves restantes
+                      </Link>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-2 lg:flex-row sm:gap-3">
-                    <Link href={`/control_acceso_personal?hangar=${id}&tab=control_acceso_personal`} className={`${cardLink} border-gray-500 hover:shadow-gray-500/80`}>
+                    <Link href={`/control_acceso_personal?hangar=${id}&tab=control_acceso_personal`} className={`${cardLink} border-transparent bg-slate-800 text-white hover:shadow-slate-500/50`}>
                       <RiAlarmWarningFill className="h-5 w-5 shrink-0 sm:h-6 sm:w-6 md:h-8 md:w-8" />
-                      <p className="text-center text-xs sm:text-sm md:text-base">Entradas y salidas del hangar</p>
+                      <p className="text-center text-xs font-semibold uppercase tracking-wide sm:text-sm md:text-base">Entradas y salidas del hangar</p>
                     </Link>
-                    <Link href="/emergencia" className={`${cardLink} border-red-400 hover:shadow-red-400/50`}>
-                      <MdEmergency className="h-5 w-5 shrink-0 text-red-600 sm:h-6 sm:w-6 md:h-8 md:w-8" />
-                      <p className="text-center text-xs text-red-700 sm:text-sm md:text-base">Emergencia</p>
+                    <Link href="/emergencia" className={`${cardLink} border-transparent bg-red-600 text-white hover:shadow-red-500/50`}>
+                      <MdEmergency className="h-5 w-5 shrink-0 sm:h-6 sm:w-6 md:h-8 md:w-8" />
+                      <p className="text-center text-xs font-semibold uppercase tracking-wide sm:text-sm md:text-base">Emergencia</p>
                     </Link>
-                    <Link href={`/hangar/${id}`} className={`${cardLink} border-gray-500 hover:shadow-gray-500/80`}>
-                      <p className="text-lg sm:text-xl md:text-2xl">Entrar</p>
+                    <Link href={`/hangar/${id}`} className={`${cardLink} border-transparent bg-cyan-600 text-white hover:shadow-cyan-500/50`}>
+                      <p className="text-lg font-semibold uppercase tracking-wide sm:text-xl md:text-2xl">Entrar</p>
                       <FaArrowRight className="h-5 w-5 shrink-0 sm:h-6 sm:w-6 md:h-8 md:w-8" />
                     </Link>
                   </div>

@@ -59,6 +59,7 @@ bool enviarEvento(const String& uid) {
   HTTPClient http;
   http.begin(client, apiURL);
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("X-Device-Key", DEVICE_API_KEY);
 
   String body = "{\"uid\":\"" + uid + "\", \"estado\":\"AUTORIZADO\", \"nombre\":\"" + uid + "\"}";
   int codigo = http.POST(body);

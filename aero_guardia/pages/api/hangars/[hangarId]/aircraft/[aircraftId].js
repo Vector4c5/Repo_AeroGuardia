@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/authOptions";
 import Hangar from "@/models/hangars";
 import Aircraft from "@/models/aircraft";
 import { getPendingTaskType } from "@/lib/pendingTaskTypes";
+import { canManageAircraft } from "@/lib/hangarPermissions";
 
 async function getHangarWithAccess(hangarId, userId) {
   return Hangar.findOne({
@@ -330,6 +331,12 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "DELETE") {
+      if (!canManageAircraft(hangar, session.user.id)) {
+        return res.status(403).json({
+          error: "Solo el propietario o un administrador del hangar puede eliminar aeronaves",
+        });
+      }
+
       const deleted = await Aircraft.findOneAndDelete({
         _id: aircraftId,
         hangar: hangarId,

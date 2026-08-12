@@ -12,6 +12,25 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@theme {
+  --color-navy: #101f38;
+  --color-navy-light: #1d3660;
+  --color-royal: #2e5c9e;
+  --color-sky: #38bdf8;
+  --color-gold: #f0a93a;
+  --color-mist: #f4f7fc;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(24px, -32px) scale(1.06); }
+}
+
+@keyframes float-slower {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-28px, 26px) scale(1.08); }
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
