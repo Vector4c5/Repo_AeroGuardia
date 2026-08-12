@@ -5,10 +5,12 @@ import { Roboto_Condensed } from "next/font/google";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 import { FaPlane, FaPlus } from "react-icons/fa6";
-import { FiArrowLeft, FiSearch } from "react-icons/fi";
+import { FiArrowLeft, FiSearch, FiUsers } from "react-icons/fi";
 import { MdOutlinePendingActions } from "react-icons/md";
 
 import Header from "@/Components/common/Header";
+import MembersPanel from "@/Components/hangar/MembersPanel";
+import ManageMembersModal from "@/Components/hangar/ManageMembersModal";
 import { notifyError, notifySuccess } from "@/lib/notifications";
 import { PENDING_TASK_TYPES } from "@/lib/pendingTaskTypes";
 import {
@@ -109,6 +111,10 @@ export default function HangarDetailPage() {
   const [error, setError] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [isMembersPanelOpen, setIsMembersPanelOpen] = useState(false);
+  const [isManageMembersOpen, setIsManageMembersOpen] = useState(false);
+  const [memberActionBusy, setMemberActionBusy] = useState(false);
 
   const [isAircraftModalOpen, setIsAircraftModalOpen] = useState(false);
   const [intakeStep, setIntakeStep] = useState("lookup");
@@ -748,6 +754,52 @@ export default function HangarDetailPage() {
     }
   };
 
+  const handleChangeRole = async (memberUserId, role) => {
+    setMemberActionBusy(true);
+    try {
+      const response = await fetch(`/api/hangars/${hangarId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "change_role", memberUserId, role }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "No se pudo actualizar el rol.");
+      }
+
+      if (payload.hangar) setHangar(payload.hangar);
+      notifySuccess(payload.message || "Rol actualizado");
+    } catch (roleError) {
+      notifyError(roleError.message || "No se pudo actualizar el rol.");
+    } finally {
+      setMemberActionBusy(false);
+    }
+  };
+
+  const handleRemoveMember = async (member) => {
+    setMemberActionBusy(true);
+    try {
+      const response = await fetch(`/api/hangars/${hangarId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "remove_member", memberUserId: member.userId }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "No se pudo expulsar al miembro.");
+      }
+
+      if (payload.hangar) setHangar(payload.hangar);
+      notifySuccess(payload.message || "Miembro expulsado");
+    } catch (removeError) {
+      notifyError(removeError.message || "No se pudo expulsar al miembro.");
+    } finally {
+      setMemberActionBusy(false);
+    }
+  };
+
   if (status === "loading" || status !== "authenticated") {
     return (
       <div className="min-h-screen bg-slate-100 px-3 pt-24 pb-8 text-slate-900 sm:px-6 sm:pt-28 md:px-10 md:pt-32">
@@ -804,6 +856,15 @@ export default function HangarDetailPage() {
               >
                 <FiArrowLeft size={30} className="text-black" />
               </Link>
+
+              <button
+                type="button"
+                onClick={() => setIsMembersPanelOpen(true)}
+                aria-label="Ver miembros"
+                className="absolute right-3 top-3 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 sm:h-12 sm:w-12 md:-right-16 md:top-6 md:h-13 md:w-13 lg:-right-20"
+              >
+                <FiUsers size={26} className="text-black" />
+              </button>
 
               <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 {hangar.image ? (
@@ -927,6 +988,7 @@ export default function HangarDetailPage() {
                     : 0;
                   const isDeparted = aircraft.status === "Salida";
                   const canExit = !isDeparted && pendingCount === 0;
+                  const canManage = hangar?.isOwner || hangar?.role === "admin";
 
                   return (
                     <article
@@ -1042,13 +1104,15 @@ export default function HangarDetailPage() {
                             Ver detalle
                           </Link>
                           {isDeparted ? (
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteAircraft(aircraft)}
-                              className={`flex w-full items-center justify-center rounded-xl bg-red-100 px-3 py-3 text-sm font-bold text-red-700 transition hover:bg-red-200 ${roboto_condensed.className}`}
-                            >
-                              Borrar
-                            </button>
+                            canManage && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteAircraft(aircraft)}
+                                className={`flex w-full items-center justify-center rounded-xl bg-red-100 px-3 py-3 text-sm font-bold text-red-700 transition hover:bg-red-200 ${roboto_condensed.className}`}
+                              >
+                                Borrar
+                              </button>
+                            )
                           ) : (
                             <button
                               type="button"
@@ -1070,7 +1134,7 @@ export default function HangarDetailPage() {
                           )}
                         </div>
 
-                        {!isDeparted && (
+                        {!isDeparted && canManage && (
                           <button
                             type="button"
                             onClick={() => handleDeleteAircraft(aircraft)}
@@ -1720,6 +1784,27 @@ export default function HangarDetailPage() {
           </>
         )}
       </main>
+
+      {hangar && (
+        <>
+          <MembersPanel
+            hangar={hangar}
+            currentUserId={session?.user?.id}
+            isOpen={isMembersPanelOpen}
+            onClose={() => setIsMembersPanelOpen(false)}
+            onManage={() => setIsManageMembersOpen(true)}
+          />
+
+          <ManageMembersModal
+            hangar={hangar}
+            isOpen={isManageMembersOpen}
+            busy={memberActionBusy}
+            onClose={() => setIsManageMembersOpen(false)}
+            onChangeRole={handleChangeRole}
+            onRemoveMember={handleRemoveMember}
+          />
+        </>
+      )}
     </div>
   );
 }

@@ -11,11 +11,16 @@ export default function ControlAcceso() {
   const [eventos, setEventos] = useState([]);
 
   const cargar = async () => {
-    const res = await fetch("/api/acceso");
-    const data = await res.json();
+    try {
+      const res = await fetch("/api/acceso");
+      if (!res.ok) return;
+      const data = await res.json();
 
-    const filtrados = data.eventos.filter(e => e.estado === "AUTORIZADO");
-    setEventos(filtrados);
+      const filtrados = (data.eventos || []).filter(e => e.estado === "AUTORIZADO");
+      setEventos(filtrados);
+    } catch {
+      // el próximo intervalo reintenta
+    }
   };
 
   useEffect(() => {

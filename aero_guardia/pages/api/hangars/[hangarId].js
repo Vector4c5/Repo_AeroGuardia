@@ -131,7 +131,51 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "PATCH") {
-      const { action, memberUserId } = req.body;
+      const { action, memberUserId, role } = req.body;
+
+      if (action === "change_role") {
+        const allowedRoles = ["admin", "engineer", "technician"];
+
+        if (!memberUserId) {
+          return res.status(400).json({
+            error: "Falta el usuario a actualizar",
+          });
+        }
+
+        if (!allowedRoles.includes(role)) {
+          return res.status(400).json({
+            error: "Rol no válido",
+          });
+        }
+
+        const hangar = await Hangar.findOne({
+          _id: hangarId,
+          owner: session.user.id,
+          "members.user": memberUserId,
+        });
+
+        if (!hangar) {
+          return res.status(404).json({
+            error: "Hangar no encontrado, no tienes permisos, o el usuario no es miembro",
+          });
+        }
+
+        const member = hangar.members.find(
+          (entry) => entry.user.toString() === memberUserId
+        );
+        member.role = role;
+        await hangar.save();
+
+        const updatedHangar = await Hangar.findById(hangar._id)
+          .populate("owner", "name email username firstNames lastNames")
+          .populate("members.user", "name email username firstNames lastNames")
+          .lean();
+
+        return res.status(200).json({
+          hangar: formatHangarForUser(updatedHangar, session.user.id),
+          message: "Rol actualizado correctamente",
+        });
+      }
 
       if (action === "remove_member") {
         if (!memberUserId) {
