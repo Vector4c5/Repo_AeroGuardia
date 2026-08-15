@@ -230,16 +230,6 @@ export default async function handler(req, res) {
           });
         }
 
-        const openPendingTasks = (aircraft.maintenanceTasks || []).filter(
-          (task) => task.status === "pending"
-        );
-
-        if (openPendingTasks.length > 0) {
-          return res.status(400).json({
-            error: `No se puede registrar la salida: hay ${openPendingTasks.length} pendiente${openPendingTasks.length === 1 ? "" : "s"} sin completar.`,
-          });
-        }
-
         const updatedAircraft = await Aircraft.findByIdAndUpdate(
           aircraftId,
           {

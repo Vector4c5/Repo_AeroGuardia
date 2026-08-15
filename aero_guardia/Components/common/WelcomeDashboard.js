@@ -161,19 +161,31 @@ function Kicker({ children, color = "text-royal" }) {
   );
 }
 
-function CtaButton({ href, label, variant = "dark" }) {
+function CtaButton({ href, label, variant = "dark", external = false }) {
   const styles =
     variant === "light"
       ? "bg-white text-slate-900 hover:bg-slate-100"
-      : "bg-gradient-to-r from-navy to-royal text-white hover:brightness-110";
+      : variant === "outline"
+        ? "border-2 border-white/80 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20"
+        : "bg-gradient-to-r from-navy to-royal text-white hover:brightness-110";
+  const className = `w-full rounded-xl p-3 shadow-md transition duration-300 hover:scale-[0.98] hover:shadow-lg sm:w-8/12 md:w-7/12 lg:w-6/12 xl:w-5/12 ${styles}`;
+  const content = (
+    <p className={`${heading.className} whitespace-nowrap text-center text-lg sm:text-2xl md:text-3xl lg:text-4xl`}>
+      {label}
+    </p>
+  );
+
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+        {content}
+      </a>
+    );
+  }
+
   return (
-    <Link
-      href={href}
-      className={`w-full rounded-xl p-3 shadow-md transition duration-300 hover:scale-[0.98] hover:shadow-lg sm:w-8/12 md:w-7/12 lg:w-6/12 xl:w-5/12 ${styles}`}
-    >
-      <p className={`${heading.className} whitespace-nowrap text-center text-lg sm:text-2xl md:text-3xl lg:text-4xl`}>
-        {label}
-      </p>
+    <Link href={href} className={className}>
+      {content}
     </Link>
   );
 }
@@ -214,7 +226,15 @@ export default function WelcomeDashboard({ ctaHref = "/login" }) {
             mismo lugar, sin depender del papel.
           </p>
 
-          <CtaButton href={ctaHref} label="Iniciar sesión" variant="light" />
+          <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
+            <CtaButton href={ctaHref} label="Iniciar sesión" variant="light" />
+            <CtaButton
+              href="https://info-aero-guardia.vercel.app/"
+              label="Conoce AeroGuardia"
+              variant="outline"
+              external
+            />
+          </div>
 
           <MdKeyboardArrowDown className="mt-8 animate-bounce text-3xl text-white/80" />
         </div>
