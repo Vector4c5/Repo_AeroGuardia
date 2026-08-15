@@ -1,24 +1,56 @@
 import { useState } from "react";
-import { Roboto_Condensed } from "next/font/google";
+import { Roboto_Condensed, Montserrat } from "next/font/google";
 import { FiX } from "react-icons/fi";
 import { ROLE_LABELS } from "@/lib/hangarRoles";
+import { getUserDisplayLabel } from "@/lib/userProfile";
 
 const roboto_condensed = Roboto_Condensed({ weight: ["400", "700"], subsets: ["latin"] });
+const heading = Montserrat({ weight: ["700", "800"], subsets: ["latin"] });
 
-const selectCls = `rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-700 outline-none ring-cyan-300 focus:ring-2 disabled:opacity-60 ${roboto_condensed.className}`;
-const btnCyan = `rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:opacity-70 ${roboto_condensed.className}`;
-const btnGray = `rounded-lg bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-300 disabled:opacity-70 ${roboto_condensed.className}`;
-const btnRed = `rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-70 ${roboto_condensed.className}`;
+const selectCls = `rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm text-slate-700 outline-none ring-royal/30 focus:ring-2 disabled:opacity-60 ${roboto_condensed.className}`;
+const btnCyan = `rounded-xl bg-gradient-to-r from-navy to-royal px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-70 ${roboto_condensed.className}`;
+const btnGray = `rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 disabled:opacity-70 ${roboto_condensed.className}`;
+const btnRed = `rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-70 ${roboto_condensed.className}`;
+const inputCls = `w-32 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm uppercase tracking-wide text-slate-700 outline-none ring-royal/30 focus:ring-2 disabled:opacity-60 sm:w-40 ${roboto_condensed.className}`;
+const btnCyanSmall = `shrink-0 rounded-lg bg-royal px-2 py-1 text-xs font-semibold text-white transition hover:bg-navy disabled:opacity-70 ${roboto_condensed.className}`;
 
 function ConfirmOverlay({ children }) {
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/60 p-4">
-      <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl">{children}</div>
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-navy/60 p-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">{children}</div>
     </div>
   );
 }
 
-export default function ManageMembersModal({ hangar, isOpen, busy, onClose, onChangeRole, onRemoveMember }) {
+// Se monta con `key={rfidUid}` desde el llamador para que el input se
+// reinicie solo cuando el UID guardado en el servidor realmente cambia.
+function RfidField({ id, rfidUid, busy, onSetRfid }) {
+  const [draft, setDraft] = useState(rfidUid || "");
+
+  const isDirty = draft.trim().toUpperCase() !== (rfidUid || "");
+
+  return (
+    <div className="flex shrink-0 items-center gap-1">
+      <input
+        value={draft}
+        disabled={busy}
+        onChange={(e) => setDraft(e.target.value)}
+        placeholder="Sin tarjeta vinculada"
+        className={inputCls}
+      />
+      <button
+        type="button"
+        disabled={busy || !isDirty}
+        onClick={() => onSetRfid(id, draft)}
+        className={btnCyanSmall}
+      >
+        Guardar
+      </button>
+    </div>
+  );
+}
+
+export default function ManageMembersModal({ hangar, isOpen, busy, onClose, onChangeRole, onRemoveMember, onSetRfid }) {
   const [pendingRoleChange, setPendingRoleChange] = useState(null);
   const [pendingRemove, setPendingRemove] = useState(null);
 
@@ -39,10 +71,10 @@ export default function ManageMembersModal({ hangar, isOpen, busy, onClose, onCh
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/55 p-3 sm:p-4">
-      <div className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-xl bg-white shadow-xl">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-navy/55 p-3 sm:p-4">
+      <div className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 sm:px-5">
-          <h3 className={`text-lg font-bold text-slate-900 ${roboto_condensed.className}`}>
+          <h3 className={`text-lg text-navy ${heading.className}`}>
             Administrar miembros
           </h3>
           <button
@@ -56,6 +88,20 @@ export default function ManageMembersModal({ hangar, isOpen, busy, onClose, onCh
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-5">
+          <div className="mb-3 flex items-center justify-between gap-2 rounded-xl border border-gold/40 bg-gold/10 px-3 py-2">
+            <p className={`min-w-0 flex-1 truncate text-sm font-medium text-slate-800 ${roboto_condensed.className}`}>
+              {getUserDisplayLabel(hangar.owner)}{" "}
+              <span className="font-normal text-slate-500">(Propietario)</span>
+            </p>
+            <RfidField
+              key={`owner-${hangar.ownerRfidUid || ""}`}
+              id="owner"
+              rfidUid={hangar.ownerRfidUid}
+              busy={busy}
+              onSetRfid={onSetRfid}
+            />
+          </div>
+
           {members.length === 0 ? (
             <p className={`text-sm text-slate-500 ${roboto_condensed.className}`}>
               Nadie más se ha unido todavía. Comparte el código de invitación desde /inicio.
@@ -68,11 +114,18 @@ export default function ManageMembersModal({ hangar, isOpen, busy, onClose, onCh
                 return (
                   <div
                     key={member.userId}
-                    className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2"
                   >
                     <p className={`min-w-0 flex-1 truncate text-sm font-medium text-slate-800 ${roboto_condensed.className}`}>
                       {label}
                     </p>
+                    <RfidField
+                      key={`${member.userId}-${member.rfidUid || ""}`}
+                      id={member.userId}
+                      rfidUid={member.rfidUid}
+                      busy={busy}
+                      onSetRfid={onSetRfid}
+                    />
                     <select
                       value={member.role || "technician"}
                       disabled={busy}

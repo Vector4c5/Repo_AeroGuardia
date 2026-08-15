@@ -1,10 +1,11 @@
-import { Roboto_Condensed } from "next/font/google";
+import { Roboto_Condensed, Montserrat } from "next/font/google";
 import { FaCrown } from "react-icons/fa6";
 import { FiX } from "react-icons/fi";
 import { ROLE_LABELS, ROLE_BADGE_CLASSES, OWNER_BADGE_CLASSES } from "@/lib/hangarRoles";
 import { getUserDisplayLabel } from "@/lib/userProfile";
 
 const roboto_condensed = Roboto_Condensed({ weight: ["400", "700"], subsets: ["latin"] });
+const heading = Montserrat({ weight: ["700", "800"], subsets: ["latin"] });
 
 function getInitial(label) {
   const value = (label || "").trim();
@@ -13,8 +14,8 @@ function getInitial(label) {
 
 function MemberRow({ label, isYou, badgeClassName, badgeLabel, badgeIcon }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-slate-50">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-700 text-sm font-bold text-white">
+    <div className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-mist">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy text-sm font-bold text-white">
         {getInitial(label)}
       </div>
       <div className="min-w-0 flex-1">
@@ -44,7 +45,7 @@ export default function MembersPanel({ hangar, currentUserId, isOpen, onClose, o
     <>
       <div
         onClick={onClose}
-        className={`fixed inset-0 z-[55] bg-slate-900/45 transition-opacity sm:bg-slate-900/25 ${
+        className={`fixed inset-0 z-[55] bg-navy/45 transition-opacity sm:bg-navy/25 ${
           isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
@@ -55,7 +56,7 @@ export default function MembersPanel({ hangar, currentUserId, isOpen, onClose, o
         }`}
       >
         <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-          <h3 className={`text-lg font-bold text-slate-900 ${roboto_condensed.className}`}>
+          <h3 className={`text-lg text-navy ${heading.className}`}>
             Miembros ({members.length + 1})
           </h3>
           <button
@@ -99,7 +100,7 @@ export default function MembersPanel({ hangar, currentUserId, isOpen, onClose, o
             <button
               type="button"
               onClick={onManage}
-              className={`w-full rounded-lg bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-cyan-700 ${roboto_condensed.className}`}
+              className={`w-full rounded-xl bg-gradient-to-r from-navy to-royal px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 ${roboto_condensed.className}`}
             >
               Administrar miembros
             </button>

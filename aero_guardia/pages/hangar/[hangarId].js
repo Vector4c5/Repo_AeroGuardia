@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Roboto_Condensed } from "next/font/google";
+import { Roboto_Condensed, Montserrat } from "next/font/google";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 import { FaPlane, FaPlus } from "react-icons/fa6";
@@ -24,6 +24,7 @@ const roboto_condensed = Roboto_Condensed({
   weight: ["400", "700"],
   subsets: ["latin"],
 });
+const heading = Montserrat({ weight: ["700", "800"], subsets: ["latin"] });
 
 const AIRCRAFT_TYPES = [
   "Ala fija",
@@ -626,18 +627,6 @@ export default function HangarDetailPage() {
   };
 
   const handleOpenExitModal = (aircraft) => {
-    const pendingCount = Array.isArray(aircraft?.maintenanceTasks)
-      ? aircraft.maintenanceTasks.filter((task) => task.status === "pending")
-          .length
-      : 0;
-
-    if (pendingCount > 0) {
-      notifyError(
-        `No se puede registrar la salida: hay ${pendingCount} pendiente${pendingCount === 1 ? "" : "s"} sin completar.`
-      );
-      return;
-    }
-
     setExitAircraft(aircraft);
     setExitForm({
       exitReportByName: sessionDisplayName,
@@ -658,18 +647,6 @@ export default function HangarDetailPage() {
     event.preventDefault();
 
     if (!exitAircraft) {
-      return;
-    }
-
-    const pendingCount = Array.isArray(exitAircraft.maintenanceTasks)
-      ? exitAircraft.maintenanceTasks.filter((task) => task.status === "pending")
-          .length
-      : 0;
-
-    if (pendingCount > 0) {
-      notifyError(
-        `No se puede registrar la salida: hay ${pendingCount} pendiente${pendingCount === 1 ? "" : "s"} sin completar.`
-      );
       return;
     }
 
@@ -800,9 +777,32 @@ export default function HangarDetailPage() {
     }
   };
 
+  const handleSetRfid = async (memberUserId, rfidUid) => {
+    setMemberActionBusy(true);
+    try {
+      const response = await fetch(`/api/hangars/${hangarId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "set_rfid", memberUserId, rfidUid }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "No se pudo vincular la tarjeta.");
+      }
+
+      if (payload.hangar) setHangar(payload.hangar);
+      notifySuccess(payload.message || "Tarjeta actualizada");
+    } catch (rfidError) {
+      notifyError(rfidError.message || "No se pudo vincular la tarjeta.");
+    } finally {
+      setMemberActionBusy(false);
+    }
+  };
+
   if (status === "loading" || status !== "authenticated") {
     return (
-      <div className="min-h-screen bg-slate-100 px-3 pt-24 pb-8 text-slate-900 sm:px-6 sm:pt-28 md:px-10 md:pt-32">
+      <div className="min-h-screen bg-mist px-3 pt-24 pb-8 text-slate-900 sm:px-6 sm:pt-28 md:px-10 md:pt-32">
         <div className="fixed left-0 top-0 z-50 w-screen">
           <Header />
         </div>
@@ -820,7 +820,7 @@ export default function HangarDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 px-3 pt-24 pb-8 text-slate-900 sm:px-6 sm:pt-28 md:px-10 md:pt-32">
+    <div className="min-h-screen bg-mist px-3 pt-24 pb-8 text-slate-900 sm:px-6 sm:pt-28 md:px-10 md:pt-32">
       <div className="fixed left-0 top-0 z-50 w-screen">
         <Header />
       </div>
@@ -876,7 +876,7 @@ export default function HangarDetailPage() {
                       sizes="(max-width: 640px) 100vw, 1200px"
                       className="object-cover"
                     />
-                    <div className="absolute inset-0 bg-linear-to-b from-slate-950/80 via-slate-950/35 to-slate-950/80" />
+                    <div className="absolute inset-0 bg-linear-to-b from-navy/80 via-navy/25 to-navy/80" />
                     <div className="absolute left-3 top-14 z-10 max-w-3xl space-y-1 text-left text-white sm:left-6 sm:top-24 sm:space-y-2">
                       {hangar.zoneTitle && (
                         <p
@@ -886,7 +886,7 @@ export default function HangarDetailPage() {
                         </p>
                       )}
                       <h2
-                        className={`text-3xl font-bold leading-none sm:text-6xl ${roboto_condensed.className}`}
+                        className={`text-3xl leading-none sm:text-6xl ${heading.className}`}
                       >
                         {hangar.label || hangar.name}
                       </h2>
@@ -916,7 +916,7 @@ export default function HangarDetailPage() {
                       </p>
                     )}
                     <h2
-                      className={`text-3xl font-bold text-slate-900 ${roboto_condensed.className}`}
+                      className={`text-3xl text-navy ${heading.className}`}
                     >
                       {hangar.label || hangar.name}
                     </h2>
@@ -933,10 +933,10 @@ export default function HangarDetailPage() {
               </section>
             </div>
 
-            <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h3
-                  className={`text-xl font-bold text-slate-800 ${roboto_condensed.className}`}
+                  className={`text-xl text-navy ${heading.className}`}
                 >
                   Aeronaves del hangar
                 </h3>
@@ -952,7 +952,7 @@ export default function HangarDetailPage() {
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
                     placeholder="Buscar por matrícula"
-                    className={`w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                    className={`w-full rounded-lg border border-slate-300 py-2 pl-9 pr-3 text-sm outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                   />
                 </div>
 
@@ -967,7 +967,7 @@ export default function HangarDetailPage() {
                         onClick={() => setStatusFilter(filter.id)}
                         className={`rounded-full px-3 py-1.5 text-sm font-semibold transition ${
                           isActive
-                            ? "bg-cyan-600 text-white"
+                            ? "bg-royal text-white"
                             : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                         } ${roboto_condensed.className}`}
                       >
@@ -987,7 +987,7 @@ export default function HangarDetailPage() {
                       ).length
                     : 0;
                   const isDeparted = aircraft.status === "Salida";
-                  const canExit = !isDeparted && pendingCount === 0;
+                  const canExit = !isDeparted;
                   const canManage = hangar?.isOwner || hangar?.role === "admin";
 
                   return (
@@ -997,8 +997,8 @@ export default function HangarDetailPage() {
                         isDeparted
                           ? "border-slate-200 opacity-90"
                           : pendingCount > 0
-                            ? "border-amber-300"
-                            : "border-cyan-200"
+                            ? "border-gold/50"
+                            : "border-royal/20"
                       }`}
                     >
                       <div
@@ -1006,8 +1006,8 @@ export default function HangarDetailPage() {
                           isDeparted
                             ? "bg-slate-700"
                             : pendingCount > 0
-                              ? "bg-gradient-to-r from-amber-500 to-orange-500"
-                              : "bg-gradient-to-r from-cyan-600 to-blue-700"
+                              ? "bg-gradient-to-r from-gold to-amber-600"
+                              : "bg-gradient-to-r from-navy to-royal"
                         }`}
                       >
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-sm">
@@ -1015,7 +1015,7 @@ export default function HangarDetailPage() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <p
-                            className={`truncate text-xl font-bold tracking-wide text-white ${roboto_condensed.className}`}
+                            className={`truncate text-xl tracking-wide text-white ${heading.className}`}
                           >
                             {aircraft.registration || "N/A"}
                           </p>
@@ -1081,12 +1081,10 @@ export default function HangarDetailPage() {
 
                         {pendingCount > 0 ? (
                           <div
-                            className={`flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900 ${roboto_condensed.className}`}
+                            className={`flex items-center gap-2 rounded-xl border border-gold/30 bg-gold/10 px-3 py-2 text-sm font-semibold text-amber-900 ${roboto_condensed.className}`}
                           >
                             <MdOutlinePendingActions className="h-5 w-5 shrink-0" />
-                            {pendingCount} pendiente
-                            {pendingCount === 1 ? "" : "s"} — sin salida hasta
-                            completarlos
+                            {pendingCount} pendiente{pendingCount === 1 ? "" : "s"} activo{pendingCount === 1 ? "" : "s"}
                           </div>
                         ) : !isDeparted ? (
                           <div
@@ -1099,7 +1097,7 @@ export default function HangarDetailPage() {
                         <div className="mt-auto grid grid-cols-1 gap-2 pt-1 sm:grid-cols-2">
                           <Link
                             href={`/hangar/${hangarId}/aeronave/${aircraftId}`}
-                            className={`flex w-full items-center justify-center rounded-xl bg-cyan-600 px-3 py-3 text-sm font-bold text-white transition hover:bg-cyan-700 ${roboto_condensed.className}`}
+                            className={`flex w-full items-center justify-center rounded-xl bg-royal px-3 py-3 text-sm font-bold text-white transition hover:bg-navy ${roboto_condensed.className}`}
                           >
                             Ver detalle
                           </Link>
@@ -1119,14 +1117,14 @@ export default function HangarDetailPage() {
                               onClick={() => handleOpenExitModal(aircraft)}
                               disabled={!canExit}
                               title={
-                                canExit
-                                  ? "Registrar salida"
-                                  : "Completa los pendientes antes de registrar la salida"
+                                pendingCount > 0
+                                  ? "Hay pendientes activos — se pedirá confirmación"
+                                  : "Registrar salida"
                               }
-                              className={`flex w-full items-center justify-center rounded-xl px-3 py-3 text-sm font-bold transition ${
-                                canExit
-                                  ? "bg-slate-800 text-white hover:bg-slate-900"
-                                  : "cursor-not-allowed bg-slate-200 text-slate-400"
+                              className={`flex w-full items-center justify-center rounded-xl px-3 py-3 text-sm font-bold text-white transition disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 ${
+                                pendingCount > 0
+                                  ? "bg-gradient-to-r from-gold to-amber-600 hover:brightness-105"
+                                  : "bg-slate-800 hover:bg-slate-900"
                               } ${roboto_condensed.className}`}
                             >
                               Salida
@@ -1163,23 +1161,23 @@ export default function HangarDetailPage() {
               onClick={handleOpenCreateAircraft}
               aria-label="Agregar aeronave"
               title="Agregar aeronave"
-              className={`group fixed bottom-4 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-cyan-600 text-2xl font-bold text-white shadow-lg shadow-cyan-500/40 transition hover:bg-cyan-700 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-cyan-300 sm:bottom-6 sm:h-16 sm:w-16 sm:text-3xl md:right-15 md:h-20 md:w-20 ${roboto_condensed.className}`}
+              className={`group fixed bottom-4 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-royal text-2xl font-bold text-white shadow-lg shadow-royal/40 transition hover:bg-navy focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-royal/30 sm:bottom-6 sm:h-16 sm:w-16 sm:text-3xl md:right-15 md:h-20 md:w-20 ${roboto_condensed.className}`}
             >
               <span aria-hidden="true">
                 <FaPlus size={28} className="text-white sm:h-8 sm:w-8 md:h-10 md:w-10" />
               </span>
               <span
-                className={`pointer-events-none absolute -translate-y-16 whitespace-nowrap rounded-md bg-cyan-900 px-2 py-1 text-xs font-semibold text-white opacity-0 shadow transition sm:-translate-y-20 sm:px-3 sm:text-lg group-hover:opacity-100 ${roboto_condensed.className}`}
+                className={`pointer-events-none absolute -translate-y-16 whitespace-nowrap rounded-md bg-navy px-2 py-1 text-xs font-semibold text-white opacity-0 shadow transition sm:-translate-y-20 sm:px-3 sm:text-lg group-hover:opacity-100 ${roboto_condensed.className}`}
               >
                 Agregar aeronave
               </span>
             </button>
 
             {isAircraftModalOpen && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
-                <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4">
+                <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
                   <h3
-                    className={`mb-1 text-lg font-bold text-slate-900 ${roboto_condensed.className}`}
+                    className={`mb-1 text-lg text-navy ${heading.className}`}
                   >
                     {intakeStep === "lookup" && "Ingresar aeronave"}
                     {intakeStep === "create" && "Nueva aeronave"}
@@ -1215,7 +1213,7 @@ export default function HangarDetailPage() {
                       <select
                         value={regPrefix}
                         onChange={(event) => setRegPrefix(event.target.value)}
-                        className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                        className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                       >
                         {REGISTRATION_PREFIX_OPTIONS.map((option) => (
                           <option key={option.value} value={option.value}>
@@ -1233,7 +1231,7 @@ export default function HangarDetailPage() {
                             )
                           }
                           placeholder="Prefijo personalizado (ej. XB-)"
-                          className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                          className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                         />
                       )}
 
@@ -1250,17 +1248,17 @@ export default function HangarDetailPage() {
                           )
                         }
                         placeholder="Ej. ABC o 123AB"
-                        className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                        className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                       />
 
-                      <div className="rounded-xl border border-cyan-200 bg-cyan-50 px-4 py-3">
+                      <div className="rounded-xl border border-royal/20 bg-mist px-4 py-3">
                         <p
-                          className={`text-xs font-semibold uppercase tracking-wide text-cyan-700 ${roboto_condensed.className}`}
+                          className={`text-xs font-semibold uppercase tracking-wide text-royal ${roboto_condensed.className}`}
                         >
                           Matrícula completa
                         </p>
                         <p
-                          className={`mt-1 text-2xl font-bold tracking-wider text-cyan-950 ${roboto_condensed.className}`}
+                          className={`mt-1 text-2xl tracking-wider text-navy ${heading.className}`}
                         >
                           {composedRegistration || "—"}
                         </p>
@@ -1270,7 +1268,7 @@ export default function HangarDetailPage() {
                         <button
                           type="submit"
                           disabled={isLookingUp || !composedRegistration}
-                          className={`inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-70 ${roboto_condensed.className}`}
+                          className={`inline-flex items-center justify-center gap-2 rounded-lg bg-royal px-4 py-2 text-sm font-semibold text-white transition hover:bg-navy disabled:cursor-not-allowed disabled:opacity-70 ${roboto_condensed.className}`}
                         >
                           <FiSearch className="h-4 w-4" />
                           {isLookingUp ? "Buscando..." : "Buscar matrícula"}
@@ -1293,7 +1291,7 @@ export default function HangarDetailPage() {
                         className={`rounded-xl border px-4 py-3 ${
                           lookupResult?.reason === "private_other_hangar"
                             ? "border-slate-200 bg-slate-50"
-                            : "border-amber-200 bg-amber-50"
+                            : "border-gold/30 bg-gold/10"
                         }`}
                       >
                         {lookupResult?.reason !== "private_other_hangar" && (
@@ -1326,7 +1324,7 @@ export default function HangarDetailPage() {
                         <button
                           type="button"
                           onClick={handleBackToLookup}
-                          className={`rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 ${roboto_condensed.className}`}
+                          className={`rounded-lg bg-royal px-4 py-2 text-sm font-semibold text-white transition hover:bg-navy ${roboto_condensed.className}`}
                         >
                           Buscar otra matrícula
                         </button>
@@ -1348,20 +1346,20 @@ export default function HangarDetailPage() {
                       onSubmit={handleSubmitAircraft}
                       className="grid grid-cols-1 gap-3"
                     >
-                      <div className="rounded-xl border border-cyan-200 bg-cyan-50 px-4 py-3">
+                      <div className="rounded-xl border border-royal/20 bg-mist px-4 py-3">
                         <p
-                          className={`text-xs font-semibold uppercase tracking-wide text-cyan-700 ${roboto_condensed.className}`}
+                          className={`text-xs font-semibold uppercase tracking-wide text-royal ${roboto_condensed.className}`}
                         >
                           Matrícula
                         </p>
                         <p
-                          className={`mt-1 text-2xl font-bold tracking-wider text-cyan-950 ${roboto_condensed.className}`}
+                          className={`mt-1 text-2xl tracking-wider text-navy ${heading.className}`}
                         >
                           {aircraftForm.registration || composedRegistration}
                         </p>
                         {intakeStep === "reentry" && (
                           <p
-                            className={`mt-2 text-sm text-cyan-800 ${roboto_condensed.className}`}
+                            className={`mt-2 text-sm text-royal ${roboto_condensed.className}`}
                           >
                             Reingreso desde tus hangares: se autorrellenaron
                             fabricante, modelo, serie y tipo. Agrega los
@@ -1444,7 +1442,7 @@ export default function HangarDetailPage() {
                               )
                             }
                             placeholder="Fabricante (Ej. Cessna)"
-                            className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                            className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                           />
                           <input
                             value={aircraftForm.model}
@@ -1452,7 +1450,7 @@ export default function HangarDetailPage() {
                               handleAircraftFormChange("model", event.target.value)
                             }
                             placeholder="Modelo (Ej. 206)"
-                            className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                            className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                           />
                           <input
                             value={aircraftForm.serialNumber}
@@ -1463,7 +1461,7 @@ export default function HangarDetailPage() {
                               )
                             }
                             placeholder="Número de serie"
-                            className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                            className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                           />
 
                           <label
@@ -1479,7 +1477,7 @@ export default function HangarDetailPage() {
                                 event.target.value
                               )
                             }
-                            className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                            className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                           >
                             {AIRCRAFT_TYPES.map((type) => (
                               <option key={type} value={type}>
@@ -1503,7 +1501,7 @@ export default function HangarDetailPage() {
                             event.target.value
                           )
                         }
-                        className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                        className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                       >
                         {STAY_REASON_PRESETS.map((reason) => (
                           <option key={reason} value={reason}>
@@ -1522,7 +1520,7 @@ export default function HangarDetailPage() {
                             )
                           }
                           placeholder="Describe la razón de estancia"
-                          className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                          className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                         />
                       )}
 
@@ -1540,7 +1538,7 @@ export default function HangarDetailPage() {
                             event.target.value
                           )
                         }
-                        className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                        className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                       />
 
                       <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
@@ -1559,7 +1557,7 @@ export default function HangarDetailPage() {
                               }))
                             }
                             placeholder="Condición"
-                            className={`rounded-md border border-slate-300 px-2 py-1 text-xs outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                            className={`rounded-md border border-slate-300 px-2 py-1 text-xs outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                           />
                           <input
                             value={conditionDraft.description}
@@ -1570,7 +1568,7 @@ export default function HangarDetailPage() {
                               }))
                             }
                             placeholder="Descripción"
-                            className={`rounded-md border border-slate-300 px-2 py-1 text-xs outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                            className={`rounded-md border border-slate-300 px-2 py-1 text-xs outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                           />
                           <button
                             type="button"
@@ -1607,9 +1605,9 @@ export default function HangarDetailPage() {
                         </div>
                       </div>
 
-                      <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3">
+                      <div className="rounded-lg border border-royal/20 bg-mist p-3">
                         <p
-                          className={`mb-2 text-sm font-semibold text-cyan-900 ${roboto_condensed.className}`}
+                          className={`mb-2 text-sm font-semibold text-navy ${roboto_condensed.className}`}
                         >
                           {intakeStep === "reentry" || intakeStep === "claim"
                             ? "Pendientes de este ingreso"
@@ -1625,7 +1623,7 @@ export default function HangarDetailPage() {
                               }))
                             }
                             placeholder="Título del pendiente"
-                            className={`rounded-md border border-cyan-300 px-2 py-1 text-xs outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                            className={`rounded-md border border-royal/30 px-2 py-1 text-xs outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                           />
                           <select
                             value={taskDraft.taskType}
@@ -1635,7 +1633,7 @@ export default function HangarDetailPage() {
                                 taskType: event.target.value,
                               }))
                             }
-                            className={`rounded-md border border-cyan-300 px-2 py-1 text-xs outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                            className={`rounded-md border border-royal/30 px-2 py-1 text-xs outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                           >
                             {PENDING_TASK_TYPES.map((type) => (
                               <option key={type} value={type}>
@@ -1652,12 +1650,12 @@ export default function HangarDetailPage() {
                               }))
                             }
                             placeholder="Descripción"
-                            className={`rounded-md border border-cyan-300 px-2 py-1 text-xs outline-none ring-cyan-300 focus:ring-2 md:col-span-2 ${roboto_condensed.className}`}
+                            className={`rounded-md border border-royal/30 px-2 py-1 text-xs outline-none ring-royal/30 focus:ring-2 md:col-span-2 ${roboto_condensed.className}`}
                           />
                           <button
                             type="button"
                             onClick={handleAddTask}
-                            className={`rounded-md bg-cyan-700 px-2 py-1 text-xs font-semibold text-white transition hover:bg-cyan-800 md:col-span-2 ${roboto_condensed.className}`}
+                            className={`rounded-md bg-royal px-2 py-1 text-xs font-semibold text-white transition hover:bg-navy md:col-span-2 ${roboto_condensed.className}`}
                           >
                             Agregar pendiente
                           </button>
@@ -1667,10 +1665,10 @@ export default function HangarDetailPage() {
                           {aircraftForm.maintenanceTasks.map((task, index) => (
                             <div
                               key={`task-${index}`}
-                              className="flex items-center justify-between rounded-md border border-cyan-200 bg-white px-2 py-1"
+                              className="flex items-center justify-between rounded-md border border-royal/20 bg-white px-2 py-1"
                             >
                               <p
-                                className={`text-xs text-cyan-900 ${roboto_condensed.className}`}
+                                className={`text-xs text-navy ${roboto_condensed.className}`}
                               >
                                 [{task.taskType}] {task.title}
                                 {task.description ? `: ${task.description}` : ""}
@@ -1691,7 +1689,7 @@ export default function HangarDetailPage() {
                         <button
                           type="submit"
                           disabled={isSubmittingAircraft}
-                          className={`rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-70 ${roboto_condensed.className}`}
+                          className={`rounded-lg bg-royal px-4 py-2 text-sm font-semibold text-white transition hover:bg-navy disabled:cursor-not-allowed disabled:opacity-70 ${roboto_condensed.className}`}
                         >
                           {isSubmittingAircraft
                             ? "Guardando..."
@@ -1725,16 +1723,36 @@ export default function HangarDetailPage() {
             )}
 
             {exitAircraft && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
-                <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/60 p-4">
+                <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl sm:p-6">
                   <h3
-                    className={`mb-1 text-lg font-bold text-slate-900 ${roboto_condensed.className}`}
+                    className={`mb-1 text-lg text-navy ${heading.className}`}
                   >
                     Registrar salida
                   </h3>
                   <p className={`mb-4 text-sm text-slate-500 ${roboto_condensed.className}`}>
                     {exitAircraft.registration}
                   </p>
+
+                  {(() => {
+                    const exitPendingTasks = Array.isArray(exitAircraft.maintenanceTasks)
+                      ? exitAircraft.maintenanceTasks.filter((task) => task.status === "pending")
+                      : [];
+                    if (exitPendingTasks.length === 0) return null;
+                    return (
+                      <div className="mb-4 rounded-xl border border-gold bg-gold/10 p-3">
+                        <p className={`text-sm font-bold text-amber-800 ${roboto_condensed.className}`}>
+                          ¿Estás seguro de autorizar la salida? Hay {exitPendingTasks.length} pendiente
+                          {exitPendingTasks.length === 1 ? "" : "s"} sin completar:
+                        </p>
+                        <ul className={`mt-2 list-disc space-y-0.5 pl-5 text-sm text-amber-900 ${roboto_condensed.className}`}>
+                          {exitPendingTasks.map((task) => (
+                            <li key={task._id || task.title}>{task.title}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })()}
 
                   <form onSubmit={handleSubmitExit} className="grid grid-cols-1 gap-3">
                     <input
@@ -1746,7 +1764,7 @@ export default function HangarDetailPage() {
                         }))
                       }
                       placeholder="Registrado por"
-                      className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                      className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                     />
                     <textarea
                       value={exitForm.exitNote}
@@ -1758,15 +1776,25 @@ export default function HangarDetailPage() {
                       }
                       placeholder="Descripción breve de la salida"
                       rows={3}
-                      className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-cyan-300 focus:ring-2 ${roboto_condensed.className}`}
+                      className={`rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-royal/30 focus:ring-2 ${roboto_condensed.className}`}
                     />
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <button
                         type="submit"
                         disabled={isSubmittingExit}
-                        className={`rounded-lg bg-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-70 ${roboto_condensed.className}`}
+                        className={
+                          Array.isArray(exitAircraft.maintenanceTasks) &&
+                          exitAircraft.maintenanceTasks.some((task) => task.status === "pending")
+                            ? `rounded-lg bg-gradient-to-r from-gold to-amber-600 px-4 py-2 text-sm font-semibold text-navy transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70 ${roboto_condensed.className}`
+                            : `rounded-lg bg-royal px-4 py-2 text-sm font-semibold text-white transition hover:bg-navy disabled:cursor-not-allowed disabled:opacity-70 ${roboto_condensed.className}`
+                        }
                       >
-                        {isSubmittingExit ? "Registrando..." : "Confirmar salida"}
+                        {isSubmittingExit
+                          ? "Registrando..."
+                          : Array.isArray(exitAircraft.maintenanceTasks) &&
+                              exitAircraft.maintenanceTasks.some((task) => task.status === "pending")
+                            ? "Sí, autorizar salida con pendientes"
+                            : "Confirmar salida"}
                       </button>
                       <button
                         type="button"
@@ -1802,6 +1830,7 @@ export default function HangarDetailPage() {
             onClose={() => setIsManageMembersOpen(false)}
             onChangeRole={handleChangeRole}
             onRemoveMember={handleRemoveMember}
+            onSetRfid={handleSetRfid}
           />
         </>
       )}
