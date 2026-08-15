@@ -116,5 +116,6 @@ export function formatHangarMember(entry) {
     email: user?.email || "",
     role: entry.role,
     joinedAt: entry.joinedAt || null,
+    rfidUid: entry.rfidUid || null,
   };
 }

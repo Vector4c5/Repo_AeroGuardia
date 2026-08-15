@@ -32,6 +32,11 @@ String nombre2 = "Hector";
 // -------- API --------
 String apiURL = "http://192.168.100.25:3000/api/acceso";
 
+// ID de Mongo del hangar al que pertenece este lector (se ve en la URL
+// /hangar/<id> dentro de la web). El servidor lo usa para saber contra
+// qué roster de tarjetas validar el UID.
+String hangarId = "6a682b431175610649250f73";
+
 unsigned long lastScan = 0;
 
 void setup() {
@@ -89,11 +94,11 @@ void loop() {
   if (nombre != "DESCONOCIDO") {
     accesoPermitido();
     abrirPuerta();
-    enviarEvento(uid, "AUTORIZADO", nombre);
   } else {
     accesoDenegado();
-    enviarEvento(uid, "DENEGADO", nombre);
   }
+
+  enviarEvento(uid);
 
   rfid.PICC_HaltA();
 }
@@ -124,13 +129,14 @@ void abrirPuerta() {
 }
 
 // -------- ENVIAR A WEB --------
-void enviarEvento(String uid, String estado, String nombre) {
+void enviarEvento(String uid) {
 
   HTTPClient http;
   http.begin(apiURL);
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("X-Device-Key", DEVICE_API_KEY);
 
-  String body = "{\"uid\":\"" + uid + "\", \"estado\":\"" + estado + "\", \"nombre\":\"" + nombre + "\"}";
+  String body = "{\"uid\":\"" + uid + "\", \"hangarId\":\"" + hangarId + "\"}";
   http.POST(body);
 
   http.end();

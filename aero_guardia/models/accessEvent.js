@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const AccessEventSchema = new mongoose.Schema(
   {
+    hangar: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Hangar",
+      required: true,
+    },
+
     uid: {
       type: String,
       required: true,

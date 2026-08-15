@@ -177,6 +177,84 @@ export default async function handler(req, res) {
         });
       }
 
+      if (action === "set_rfid") {
+        if (!memberUserId) {
+          return res.status(400).json({
+            error: "Falta el usuario al que vincular la tarjeta",
+          });
+        }
+
+        const rawRfidUid = typeof req.body.rfidUid === "string" ? req.body.rfidUid : "";
+        const safeRfidUid = rawRfidUid.trim().toUpperCase();
+
+        if (safeRfidUid && !/^[0-9A-F]+$/.test(safeRfidUid)) {
+          return res.status(400).json({
+            error: "El UID de la tarjeta solo puede tener números y letras A-F",
+          });
+        }
+
+        const hangar = await Hangar.findOne({
+          _id: hangarId,
+          owner: session.user.id,
+        });
+
+        if (!hangar) {
+          return res.status(404).json({
+            error: "Hangar no encontrado o no tienes permisos",
+          });
+        }
+
+        if (memberUserId !== "owner") {
+          const memberExists = hangar.members.some(
+            (entry) => entry.user.toString() === memberUserId
+          );
+
+          if (!memberExists) {
+            return res.status(404).json({
+              error: "Este usuario no forma parte del hangar",
+            });
+          }
+        }
+
+        if (safeRfidUid) {
+          const ownerHasIt =
+            memberUserId !== "owner" && hangar.ownerRfidUid === safeRfidUid;
+
+          const anotherMemberHasIt = hangar.members.some(
+            (entry) =>
+              entry.rfidUid === safeRfidUid &&
+              entry.user.toString() !== memberUserId
+          );
+
+          if (ownerHasIt || anotherMemberHasIt) {
+            return res.status(400).json({
+              error: "Esa tarjeta ya está vinculada a otra persona de este hangar",
+            });
+          }
+        }
+
+        if (memberUserId === "owner") {
+          hangar.ownerRfidUid = safeRfidUid || null;
+        } else {
+          const member = hangar.members.find(
+            (entry) => entry.user.toString() === memberUserId
+          );
+          member.rfidUid = safeRfidUid || null;
+        }
+
+        await hangar.save();
+
+        const updatedHangar = await Hangar.findById(hangar._id)
+          .populate("owner", "name email username firstNames lastNames")
+          .populate("members.user", "name email username firstNames lastNames")
+          .lean();
+
+        return res.status(200).json({
+          hangar: formatHangarForUser(updatedHangar, session.user.id),
+          message: safeRfidUid ? "Tarjeta vinculada correctamente" : "Tarjeta desvinculada",
+        });
+      }
+
       if (action === "remove_member") {
         if (!memberUserId) {
           return res.status(400).json({

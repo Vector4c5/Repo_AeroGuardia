@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 
@@ -13,7 +14,7 @@ import {
 
 function formatDate(value) {
     if (!value) {
-        return "Sin fecha"; 
+        return "Sin fecha";
     }
 
     return new Date(value).toLocaleDateString("es-MX", {
@@ -22,8 +23,20 @@ function formatDate(value) {
         day: "numeric",
     });
 }
+
+const HANGAR_FILTER_ALL = "TODOS";
+
+function pillCls(active) {
+    return `rounded-full px-4 py-2 text-sm font-medium transition ${
+        active
+            ? "bg-amber-500 text-white shadow-sm"
+            : "border border-slate-200 bg-white text-slate-600 hover:border-amber-300 hover:bg-amber-50"
+    }`;
+}
+
 export default function PendingPage() {
     const { data: session } = useSession();
+    const router = useRouter();
 
     const [hangars, setHangars] = useState([]);
     const [aircraftByHangar, setAircraftByHangar] = useState({});
@@ -32,16 +45,36 @@ export default function PendingPage() {
         PENDING_TASK_TYPE_FILTER_ALL
     );
 
+    const hangarFilter =
+        typeof router.query.hangar === "string"
+            ? router.query.hangar
+            : HANGAR_FILTER_ALL;
+
+    const setHangarFilter = (value) => {
+        router.push(
+            {
+                pathname: "/pending",
+                query: value === HANGAR_FILTER_ALL ? {} : { hangar: value },
+            },
+            undefined,
+            { shallow: true }
+        );
+    };
+
     const allPendientes = useMemo(
         () => buildAllPendientes(hangars, aircraftByHangar),
         [hangars, aircraftByHangar]
     );
 
-    const filteredPendientes = useMemo(
-        () =>
-            filterByPendingTaskType(allPendientes, pendingTypeFilter),
-        [allPendientes, pendingTypeFilter]
-    );
+    const filteredPendientes = useMemo(() => {
+        const byType = filterByPendingTaskType(allPendientes, pendingTypeFilter);
+
+        if (hangarFilter === HANGAR_FILTER_ALL) {
+            return byType;
+        }
+
+        return byType.filter((item) => item.hangarId === hangarFilter);
+    }, [allPendientes, pendingTypeFilter, hangarFilter]);
 
     useEffect(() => {
         if (!session) {
@@ -133,27 +166,51 @@ export default function PendingPage() {
                         </span>
                     </div>
 
-                    <div className="mb-6">
-                        <label
-                            htmlFor="pending-type-filter"
-                            className="mb-1.5 block text-sm font-medium text-slate-700"
-                        >
-                            Filtrar por tipo de pendiente
-                        </label>
-                        <select
-                            id="pending-type-filter"
-                            value={pendingTypeFilter}
-                            onChange={(e) =>
-                                setPendingTypeFilter(e.target.value)
-                            }
-                            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-amber-400 sm:max-w-xs"
-                        >
-                            {PENDING_TASK_TYPE_FILTER_OPTIONS.map((option) => (
-                                <option key={option} value={option}>
-                                    {option}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="mb-6 space-y-4">
+                        <div>
+                            <p className="mb-2 text-sm font-medium text-slate-700">
+                                Filtrar por tipo de pendiente
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                {PENDING_TASK_TYPE_FILTER_OPTIONS.map((option) => (
+                                    <button
+                                        key={option}
+                                        type="button"
+                                        onClick={() => setPendingTypeFilter(option)}
+                                        className={pillCls(pendingTypeFilter === option)}
+                                    >
+                                        {option}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {hangars.length > 1 && (
+                            <div>
+                                <p className="mb-2 text-sm font-medium text-slate-700">
+                                    Filtrar por hangar
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setHangarFilter(HANGAR_FILTER_ALL)}
+                                        className={pillCls(hangarFilter === HANGAR_FILTER_ALL)}
+                                    >
+                                        Todos los hangares
+                                    </button>
+                                    {hangars.map((h) => (
+                                        <button
+                                            key={h.id}
+                                            type="button"
+                                            onClick={() => setHangarFilter(h.id)}
+                                            className={pillCls(hangarFilter === h.id)}
+                                        >
+                                            {h.label || h.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {!session ? (
