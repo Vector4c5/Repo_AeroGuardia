@@ -323,15 +323,13 @@ export default function ProfilePage() {
                 </button>
               )}
 
-              {isIncomplete && (
-                <button
-                  type="button"
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  className="rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"
-                >
-                  Cerrar sesión
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"
+              >
+                Cerrar sesión
+              </button>
             </div>
           </form>
         </section>

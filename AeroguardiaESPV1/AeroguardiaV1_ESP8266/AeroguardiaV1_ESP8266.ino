@@ -3,8 +3,8 @@
 // refleja en /control_acceso_personal. Cableado: ver RFID_Test_ESP8266.ino
 // (SDA/SS -> D4, RST -> D3, SCK D5, MOSI D7, MISO D6).
 //
-// Cualquier tarjeta leída se manda como AUTORIZADO con nombre = UID
-// (todavía no hay tabla de tarjetas registradas del lado del server).
+// El lector solo manda el UID crudo; el servidor decide AUTORIZADO/DENEGADO
+// y resuelve el nombre real contra las tarjetas vinculadas a este hangar.
 //
 // Resiliencia de red: el lector sigue funcionando sin WiFi/API. Los eventos
 // que no se puedan enviar se guardan en una cola FIFO en memoria y se
@@ -26,7 +26,12 @@ const char* password = WIFI_PASSWORD;
 MFRC522 rfid(SS_PIN, RST_PIN);
 
 // -------- API --------
-String apiURL = "http://192.168.1.235:3000/api/acceso";
+String apiURL = "http://192.168.1.243:3000/api/acceso";
+
+// ID de Mongo del hangar al que pertenece este lector (se ve en la URL
+// /hangar/<id> dentro de la web). El servidor lo usa para saber contra
+// qué roster de tarjetas validar el UID.
+String hangarId = "6a682b431175610649250f73";
 
 unsigned long lastScan = 0;
 
@@ -61,7 +66,7 @@ bool enviarEvento(const String& uid) {
   http.addHeader("Content-Type", "application/json");
   http.addHeader("X-Device-Key", DEVICE_API_KEY);
 
-  String body = "{\"uid\":\"" + uid + "\", \"estado\":\"AUTORIZADO\", \"nombre\":\"" + uid + "\"}";
+  String body = "{\"uid\":\"" + uid + "\", \"hangarId\":\"" + hangarId + "\"}";
   int codigo = http.POST(body);
   http.end();
 

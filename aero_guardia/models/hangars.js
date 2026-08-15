@@ -70,6 +70,13 @@ const HangarSchema = new mongoose.Schema(
       default: null,
     },
 
+    ownerRfidUid: {
+      type: String,
+      default: null,
+      trim: true,
+      uppercase: true,
+    },
+
     members: [
       {
         user: {
@@ -87,6 +94,13 @@ const HangarSchema = new mongoose.Schema(
         joinedAt: {
           type: Date,
           default: Date.now,
+        },
+
+        rfidUid: {
+          type: String,
+          default: null,
+          trim: true,
+          uppercase: true,
         },
       },
     ],

@@ -1,7 +1,6 @@
 import { IoHomeOutline } from "react-icons/io5";
 import { MdPlayArrow } from "react-icons/md";
 import { FaBars, FaClipboardList, FaTimes } from "react-icons/fa";
-import { RiAlarmWarningFill } from "react-icons/ri";
 import { FaPlaneLock } from "react-icons/fa6";
 import Link from "next/link";
 import { Montserrat } from "next/font/google";
@@ -37,11 +36,6 @@ export default function Header() {
       name: "Acceso",
       href: "/control_acceso_personal",
       icon: <FaPlaneLock />,
-    },
-    {
-      name: "Emergencia",
-      href: "/emergencia",
-      icon: <RiAlarmWarningFill />,
     },
   ];
 
