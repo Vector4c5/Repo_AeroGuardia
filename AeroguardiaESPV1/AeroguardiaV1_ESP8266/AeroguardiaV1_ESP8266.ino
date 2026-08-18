@@ -52,7 +52,7 @@ void actualizarServo() {
 }
 
 // -------- API --------
-String apiURL = "http://192.168.1.243:3000/api/acceso";
+String apiURL = "http://192.168.137.1:3000/api/acceso";
 
 // ID de Mongo del hangar al que pertenece este lector (se ve en la URL
 // /hangar/<id> dentro de la web). El servidor lo usa para saber contra
